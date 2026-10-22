@@ -116,7 +116,6 @@
 
     <!-- 1. GRADE & SUBJECT CONTROLS -->
     <section class="cyber-card rounded-2xl p-5 space-y-4">
-      <!-- Grade Tier Buttons -->
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-cyan-500/20">
         <div>
           <h2 class="text-xs sm:text-sm font-bold text-white uppercase tracking-wide">
@@ -138,22 +137,19 @@
         </div>
       </div>
 
-      <!-- Subjects Buttons -->
       <div>
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-semibold text-slate-300 uppercase">2. Fan Tanlovi (Qat'iy Cheklov):</span>
           <span class="text-[11px] font-mono text-cyan-300" id="currentSubjectText">Faol fan: Ingliz Tili</span>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" id="subjectButtonsContainer">
-          <!-- Populated by JS -->
-        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" id="subjectButtonsContainer"></div>
       </div>
     </section>
 
     <!-- 2. AVATAR & TOPIC GENERATOR -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
-      <!-- AVATAR (GoPrep.gg Style) -->
+      <!-- AVATAR -->
       <section class="lg:col-span-5 cyber-card-purple rounded-2xl p-5 text-center">
         <div class="flex items-center justify-between mb-3 pb-2 border-b border-purple-500/20 text-xs">
           <span class="font-bold text-white uppercase">AI Cyber Avatar Mimics</span>
@@ -162,33 +158,25 @@
           </span>
         </div>
 
-        <!-- Speech Bubble -->
         <div id="avatarBubble" class="p-3 rounded-xl border border-slate-800 bg-[#0a0f1d] text-xs text-left mb-3 transition-all">
           <span class="font-bold text-[10px] text-cyan-400 block" id="speakerName">Ustoz Jasur:</span>
           <p id="avatarText" class="text-slate-200 line-clamp-3">Assalomu alaykum! Darsni boshlashga tayyormisiz?</p>
         </div>
 
-        <!-- Avatar SVG -->
         <div class="flex justify-center">
           <div id="avatarFrame" class="w-40 h-40 rounded-full flex items-center justify-center p-2 bg-gradient-to-b from-slate-900 to-[#070a12] ring-2 ring-slate-700 transition-all duration-300">
             <svg viewBox="0 0 200 200" class="w-full h-full">
               <circle cx="100" cy="100" r="92" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.6" />
               <rect x="55" y="45" width="90" height="110" rx="45" fill="#0d1424" stroke="#1e293b" stroke-width="2" />
-              
-              <!-- Eyebrows (Dynamic in JS) -->
               <g id="svgEyebrows">
                 <path d="M 68 79 Q 81 74 94 79" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linecap="round"/>
                 <path d="M 106 79 Q 119 74 132 79" stroke="#06b6d4" stroke-width="3" fill="none" stroke-linecap="round"/>
               </g>
-
-              <!-- Visor & Eyes -->
               <rect x="66" y="88" width="68" height="24" rx="12" fill="#050811" stroke="#0284c7" stroke-width="1.5" />
               <g id="svgEyes" fill="#06b6d4">
                 <circle cx="83" cy="100" r="4" />
                 <circle cx="117" cy="100" r="4" />
               </g>
-
-              <!-- Mouth (Dynamic in JS) -->
               <g id="svgMouth">
                 <path d="M 86 135 Q 100 140 114 135" fill="none" stroke="#06b6d4" stroke-width="2.5" stroke-linecap="round" />
               </g>
@@ -196,7 +184,6 @@
           </div>
         </div>
 
-        <!-- Voice switch -->
         <div class="flex items-center gap-2 mt-3">
           <button onclick="setVoicePersona('jasur')" id="btnJasur" class="flex-1 py-1.5 px-2 rounded-lg border text-xs font-semibold bg-cyan-950 border-cyan-400 text-white transition">
             👨 Ustoz Jasur
@@ -222,16 +209,13 @@
             </button>
           </div>
 
-          <!-- Suggested topics -->
-          <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs" id="recommendedTopics">
-            <!-- Populated by JS -->
-          </div>
+          <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs" id="recommendedTopics"></div>
         </div>
 
-        <!-- Audio controls -->
+        <!-- Audio controls (Aisha TTS Proxy Connected) -->
         <div class="cyber-card-purple rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-purple-500/20 text-xs">
-            <span class="font-bold text-white uppercase">Natural Uzbek Audio (Fon Kirill TTS)</span>
+            <span class="font-bold text-white uppercase">Aisha TTS (Cloudflare Proxy)</span>
             <button onclick="togglePlayback()" id="btnAudioToggle" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition">
               ▶ Ovozli O'qish
             </button>
@@ -262,13 +246,9 @@
 
     </div>
 
-    <!-- 3. MAVZU TUSHUNTIRISH (DONA-DONA) -->
+    <!-- 3. MAVZU TUSHUNTIRISH -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
-      <!-- THEORY, FORMULAS & SAMPLE PROBLEM -->
       <div class="lg:col-span-7 space-y-4">
-        
-        <!-- Explanation -->
         <div class="cyber-card rounded-2xl p-5 space-y-2">
           <div class="flex items-center justify-between pb-2 border-b border-cyan-500/20 text-xs font-bold text-white uppercase">
             <span>📖 Nazariy Tushuntirish</span>
@@ -277,7 +257,6 @@
           <p id="lessonExplanation" class="text-sm text-slate-100 leading-relaxed"></p>
         </div>
 
-        <!-- Formulas -->
         <div class="cyber-card rounded-2xl p-5 space-y-2">
           <div class="text-xs font-bold text-white uppercase pb-2 border-b border-cyan-500/20">
             📐 Asosiy Formulalar va Qoidalar
@@ -285,7 +264,6 @@
           <div id="lessonFormulas" class="space-y-1.5 text-xs sm:text-sm font-mono text-cyan-300"></div>
         </div>
 
-        <!-- Solved Problem -->
         <div class="cyber-card rounded-2xl p-5 space-y-3">
           <div class="text-xs font-bold text-white uppercase pb-2 border-b border-cyan-500/20">
             💡 Namunaviy Masala va Yechim
@@ -299,13 +277,9 @@
             <p id="solutionText" class="text-emerald-100 font-mono leading-relaxed"></p>
           </div>
         </div>
-
       </div>
 
-      <!-- MERMAID & MANDATORY CLOSING QUESTION -->
       <div class="lg:col-span-5 space-y-4">
-        
-        <!-- Mermaid Diagram -->
         <div class="cyber-card rounded-2xl p-5 space-y-2">
           <div class="text-xs font-bold text-white uppercase pb-2 border-b border-cyan-500/20">
             📊 Oqim Sxemasi (Mermaid)
@@ -315,7 +289,6 @@
           </div>
         </div>
 
-        <!-- MANDATORY CLOSING QUESTION BOX -->
         <div class="cyber-card-purple rounded-2xl p-5 border-2 border-purple-500/40 space-y-3">
           <div class="text-xs font-bold text-white uppercase pb-2 border-b border-purple-500/30">
             O'qituvchining O'zlashtirish So'rovi
@@ -333,12 +306,10 @@
             </button>
           </div>
         </div>
-
       </div>
-
     </div>
 
-    <!-- 4. ADAPTIVE QUIZ SECTION (60% PASSING GATE) -->
+    <!-- 4. ADAPTIVE QUIZ SECTION -->
     <section id="quizSection" class="cyber-card rounded-2xl p-6 space-y-4">
       <div class="flex items-center justify-between pb-3 border-b border-cyan-500/20 text-xs sm:text-sm">
         <span class="font-bold text-white uppercase" id="quizHeaderTitle">
@@ -346,52 +317,55 @@
         </span>
         <span id="quizCounter" class="font-mono text-cyan-300">Savol: 1 / 20</span>
       </div>
-
-      <!-- Quiz Body Container (Dynamic) -->
-      <div id="quizBody">
-        <!-- Rendered by JS -->
-      </div>
+      <div id="quizBody"></div>
     </section>
 
   </main>
 
-  <!-- FOOTER -->
   <footer class="border-t border-cyan-500/10 mt-12 py-5 bg-[#05070e] text-center text-xs text-slate-500 font-mono">
     OmniCore AI Ecosystem · Maktab AI Repetitori · 1-4 sinf (10 savol), 5-8 sinf (20), 9-11 sinf (30) · 60% O'tish Bali
   </footer>
 
-  <!-- SCRIPT LOGIC -->
+  <!-- SCRIPT LOGIC (AISHA TTS PROXY WORKER CONNECTED) -->
   <script>
     mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
-    // Transliterate Latin -> Cyrillic for background TTS
-    function latinToCyrillicUzbek(input) {
-      if (!input) return '';
-      let text = input;
-      text = text.replace(/O['ʻ‘`’]/g, 'Ў').replace(/o['ʻ‘`’]/g, 'ў');
-      text = text.replace(/G['ʻ‘`’]/g, 'Ғ').replace(/g['ʻ‘`’]/g, 'ғ');
-      text = text.replace(/SH/g, 'Ш').replace(/Sh/g, 'Ш').replace(/sh/g, 'ш');
-      text = text.replace(/CH/g, 'Ч').replace(/Ch/g, 'Ч').replace(/ch/g, 'ч');
-      text = text.replace(/YO/g, 'Ё').replace(/Yo/g, 'Ё').replace(/yo/g, 'ё');
-      text = text.replace(/YU/g, 'Ю').replace(/Yu/g, 'Ю').replace(/yu/g, 'ю');
-      text = text.replace(/YA/g, 'Я').replace(/Ya/g, 'Я').replace(/ya/g, 'я');
-      text = text.replace(/TS/g, 'Ц').replace(/Ts/g, 'Ц').replace(/ts/g, 'ц');
-      text = text.replace(/(^|[\s\p{P}])Ye/gu, '$1Е').replace(/(^|[\s\p{P}])ye/gu, '$1е');
-      text = text.replace(/([AEIOUaeiouЎў])Ye/g, '$1Е').replace(/([AEIOUaeiouЎў])ye/g, '$1е');
-      text = text.replace(/(^|[\s\p{P}])E/gu, '$1Э').replace(/(^|[\s\p{P}])e/gu, '$1э');
+    // Cloudflare Worker URL
+    const WORKER_URL = 'https://wild-rice-449a.y-u-umarxon2010.workers.dev/';
 
-      const charMap = {
-        'A': 'А', 'a': 'а', 'B': 'Б', 'b': 'б', 'D': 'Д', 'd': 'д',
-        'E': 'Е', 'e': 'е', 'F': 'Ф', 'f': 'ф', 'G': 'Г', 'g': 'г',
-        'H': 'Ҳ', 'h': 'ҳ', 'I': 'И', 'i': 'и', 'J': 'Ж', 'j': 'ж',
-        'K': 'К', 'k': 'к', 'L': 'Л', 'l': 'л', 'M': 'М', 'm': 'м',
-        'N': 'Н', 'n': 'н', 'O': 'О', 'o': 'о', 'P': 'П', 'p': 'п',
-        'Q': 'Қ', 'q': 'қ', 'R': 'Р', 'r': 'р', 'S': 'С', 's': 'с',
-        'T': 'Т', 't': 'т', 'U': 'У', 'u': 'у', 'V': 'В', 'v': 'в',
-        'X': 'Х', 'x': 'х', 'Y': 'Й', 'y': 'й', 'Z': 'З', 'z': 'з',
-        "'": 'ъ', "ʻ": 'ъ', "’": 'ъ', "‘": 'ъ', "`": 'ъ'
-      };
-      return text.split('').map(c => charMap[c] || c).join('');
+    async function speak(text) {
+      if (!text) return;
+      try {
+        window.speechSynthesis.cancel();
+        const response = await fetch(WORKER_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ transcript: text, language: 'uz' }),
+        });
+        if (!response.ok) throw new Error("Worker xatosi");
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        await audio.play();
+      } catch (error) {
+        console.warn("Aisha TTS ishlamadi, brauzer ovoziga o'tilmoqda...", error);
+        speakLocal(text);
+      }
+    }
+
+    function speakLocal(text) {
+      if (!('speechSynthesis' in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      const uzVoice = voices.find(v => v.lang.startsWith('uz') || v.lang.startsWith('UZ'));
+      const utterance = new SpeechSynthesisUtterance(text);
+      if (uzVoice) {
+        utterance.voice = uzVoice;
+        utterance.lang = 'uz-UZ';
+      } else {
+        utterance.lang = 'ru-RU';
+        utterance.rate = 0.85;
+      }
+      window.speechSynthesis.speak(utterance);
     }
 
     const MANDATORY_QUESTION = "Mavzuni o'zlashtirib bo'ldingizmi? Mavzuga oid savol-javoblar qilamizmi keyingi mavzuga o'tishimiz uchun?";
@@ -412,83 +386,46 @@
     let isSpeaking = false;
     let score = 0;
 
-    // Quiz State
     let quizQuestions = [];
     let currentQIndex = 0;
     let userAnswers = [];
     let isQuizActive = false;
 
-    // Get max questions based on tier
     function getMaxQuestions() {
       if (currentGradeTier === '1-4') return 10;
       if (currentGradeTier === '5-8') return 20;
       return 30;
     }
 
-    // Default lesson templates
     function getLessonData(subj) {
       const maxQ = getMaxQuestions();
       const list = [];
       for (let i = 1; i <= maxQ; i++) {
         if (subj === 'Ingliz Tili') {
-          list.push({
-            q: `(${i}-savol) «She ______ already finished her homework.» Bo'sh o'ringa to'g'ri fe'lni qo'ying:`,
-            options: ['has', 'have', 'is'],
-            correct: 0,
-            exp: 'Ingliz tilida 3-shaxs birlik (She) uchun «has» qo\'llaniladi.'
-          });
+          list.push({ q: `(${i}-savol) «She ______ already finished her homework.» Bo'sh o'ringa to'g'ri fe'lni qo'ying:`, options: ['has', 'have', 'is'], correct: 0, exp: 'Ingliz tilida 3-shaxs birlik uchun «has» qo\'llaniladi.' });
         } else if (subj === 'Matematika') {
-          list.push({
-            q: `(${i}-savol) To'g'ri burchakli uchburchakning katetlari 3 va 4 bo'lsa, gipotenuzasi nechaga teng?`,
-            options: ['5', '6', '7'],
-            correct: 0,
-            exp: 'Pifagor formulasi: c² = 3² + 4² = 25, demak c = 5.'
-          });
+          list.push({ q: `(${i}-savol) Katetlari 3 va 4 bo'lgan to'g'ri burchakli uchburchak gipotenuzasi?`, options: ['5', '6', '7'], correct: 0, exp: 'Pifagor formulasi: c² = 3² + 4² = 25, c = 5.' });
         } else if (subj === 'Fizika') {
-          list.push({
-            q: `(${i}-savol) Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o'zgaradi?`,
-            options: ['4 barobar kamayadi', '2 barobar kamayadi', '2 barobar ortadi'],
-            correct: 0,
-            exp: 'Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/r²).'
-          });
+          list.push({ q: `(${i}-savol) Masofa 2 barobar oshirilsa, gravitatsion tortishish kuchi?`, options: ['4 barobar kamayadi', '2 barobar kamayadi', '2 barobar ortadi'], correct: 0, exp: 'F ~ 1/r² bo\'lgani uchun 4 marta kamayadi.' });
         } else if (subj === 'Kimyo') {
-          list.push({
-            q: `(${i}-savol) Atomning kimyoviy xossalarini davriy jadvalda asosan nima belgilaydi?`,
-            options: ['Yadro zaryadi (protonlar)', 'Neytronlar', 'Modda massasi'],
-            correct: 0,
-            exp: 'Mendeleyev davriy qonuni yadro zaryadiga bog\'liq.'
-          });
+          list.push({ q: `(${i}-savol) Atom xossalarini davriy jadvalda nima belgilaydi?`, options: ['Yadro zaryadi (protonlar)', 'Neytronlar', 'Modda massasi'], correct: 0, exp: 'Mendeleyev qonuni yadro zaryadiga asoslanadi.' });
         } else if (subj === 'Tarix') {
-          list.push({
-            q: `(${i}-savol) Amir Temurning bosh strategik shiori qaysi bo'lgan?`,
-            options: ['Kuch — adolatdadir', 'Tinchlik — boylikdadir', 'G\'alaba — kuchdadir'],
-            correct: 0,
-            exp: 'Sohibqiron Amir Temurning shiori «Kuch — adolatdadir» bo\'lgan.'
-          });
+          list.push({ q: `(${i}-savol) Amir Temurning bosh strategik shiori?`, options: ['Kuch — adolatdadir', 'Tinchlik — boylikdadir', 'G\'alaba — kuchdadir'], correct: 0, exp: 'Sohibqiron shiori: Kuch — adolatdadir.' });
         } else {
-          list.push({
-            q: `(${i}-savol) Neyron tarmog'ini o'qitishda xatolikni orqaga tarqatish algoritmi nima?`,
-            options: ['Backpropagation', 'Overfitting', 'Augmentation'],
-            correct: 0,
-            exp: 'Backpropagation algoritmi xatolik gradientini tarqatadi.'
-          });
+          list.push({ q: `(${i}-savol) Neyron tarmog'ini o'qitishda xatolikni tarqatish algoritmi?`, options: ['Backpropagation', 'Overfitting', 'Augmentation'], correct: 0, exp: 'Backpropagation xatolik gradientini hisoblaydi.' });
         }
       }
 
       return {
         subject: subj,
         topic: `${subj} Asosiy Qoidalari`,
-        explanation: `${subj} bo'yicha darsimiz ${currentGrade}-sinf dasturiga moslashtirilgan. Barcha qoida va formulalarni diqqat bilan o'rganing.`,
-        formulas: [
-          '1-qoida: Fundamental qoidani eslab qoling',
-          '2-qoida: Amaliy mashqlarda formulaga tayaning',
-          '3-qoida: Sinov testida kamida 60% natija to\'plang'
-        ],
-        problem: `${subj} fani bo'yicha namunaviy vazifa.`,
-        solution: `Bosqichma-bosqich: 1-qadamda shartni aniqlang. 2-qadamda formulani qo'llang. 3-qadamda to'g'ri natijaga erishing.`,
+        explanation: `${subj} bo'yicha darsimiz ${currentGrade}-sinf dasturiga moslashtirilgan.`,
+        formulas: ['1-qoida: Qoidani eslab qoling', '2-qoida: Formulaga tayanib ishlang', '3-qoida: 60% dan yuqori natija oling'],
+        problem: `${subj} fanidan namunaviy masala.`,
+        solution: `Bosqichma-bosqich yechim va tahlil.`,
         diagram: `graph LR\n  A[Boshlanish] --> B[Mavzu O'rganish]\n  B --> C[Namunaviy Masala]\n  C --> D[60% O'tish Bali Testi]`,
         nextTopic: `${subj} bo'yicha Keyingi Yangi Mavzu`,
-        reviewExp: `${subj} bo'yicha o'rganilgan formulalarni qayta ko'rib chiqing.`,
+        reviewExp: `Qoidalarni qayta ko'rib chiqing.`,
         questions: list
       };
     }
@@ -496,7 +433,6 @@
     let activeLesson = getLessonData('Ingliz Tili');
 
     function initUI() {
-      // Render Subject Buttons
       const container = document.getElementById('subjectButtonsContainer');
       container.innerHTML = SUBJECTS.map(s => `
         <button onclick="selectSubject('${s.id}')" class="p-2.5 rounded-xl border text-xs font-semibold flex flex-col items-center justify-center gap-1 transition ${s.id === currentSubject ? 'bg-cyan-950/80 border-cyan-400 text-white shadow-[0_0_12px_rgba(6,182,212,0.3)]' : 'bg-[#0a0f1d] border-slate-800 text-slate-300 hover:border-slate-700'}">
@@ -504,7 +440,6 @@
           <span class="whitespace-nowrap">${s.id}</span>
         </button>
       `).join('');
-
       renderLesson();
     }
 
@@ -545,9 +480,7 @@
       const mouth = document.getElementById('svgMouth');
       const eyes = document.getElementById('svgEyes');
 
-      if (text) {
-        document.getElementById('avatarText').innerText = text;
-      }
+      if (text) document.getElementById('avatarText').innerText = text;
 
       if (mood === 'strict') {
         badge.className = 'px-2 py-0.5 rounded border bg-rose-950/80 border-rose-500 text-rose-300 font-mono text-[10px] animate-pulse';
@@ -582,7 +515,6 @@
       document.getElementById('solutionText').innerText = activeLesson.solution;
       document.getElementById('btnStartQuizLabel').innerText = `Ha, savol-javobni boshlaymiz! (${(activeLesson.questions || []).length} ta savol)`;
 
-      // Recommended topics
       const subjObj = SUBJECTS.find(s => s.id === currentSubject);
       if (subjObj && Array.isArray(subjObj.topics)) {
         document.getElementById('recommendedTopics').innerHTML = `
@@ -593,7 +525,6 @@
         `;
       }
 
-      // Mermaid render
       const mContainer = document.getElementById('mermaidContainer');
       mContainer.removeAttribute('data-processed');
       mContainer.innerHTML = activeLesson.diagram;
@@ -611,36 +542,15 @@
       const input = document.getElementById('topicInput').value.trim() || activeLesson.topic;
       activeLesson = getLessonData(currentSubject);
       activeLesson.topic = input;
-      activeLesson.explanation = `${input} — bu ${currentSubject} fanining ${currentGrade}-sinfidagi eng muhim bo'limlaridan biri. Barcha nazariya va formulalarni yaxshilab o'rganing.`;
+      activeLesson.explanation = `${input} — bu ${currentSubject} fanining ${currentGrade}-sinfidagi asosiy mavzularidan biri.`;
       renderLesson();
       resetQuiz();
-      speakText(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
+      speak(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
     }
 
     function reviewExplanation() {
-      setAvatarMood('idle', `Hech qisi yo'q! Keling, ${currentSubject} bo'yicha qoidalar va masalani yana bir bor ko'rib chiqamiz.`);
-      speakText(`${activeLesson.explanation} ${activeLesson.problem} ${activeLesson.solution}`);
-    }
-
-    // Speech with background transliteration
-    function speakText(txt) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      isSpeaking = true;
-      document.getElementById('btnAudioToggle').innerText = '⏹ To\'xtatish';
-
-      const cyrillic = latinToCyrillicUzbek(txt);
-      const utter = new SpeechSynthesisUtterance(cyrillic);
-      utter.lang = 'uz-UZ';
-      utter.rate = parseFloat(document.getElementById('rateSlider').value);
-      utter.pitch = parseFloat(document.getElementById('pitchSlider').value);
-      utter.volume = parseFloat(document.getElementById('volSlider').value);
-
-      utter.onend = () => {
-        isSpeaking = false;
-        document.getElementById('btnAudioToggle').innerText = '▶ Ovozli O\'qish';
-      };
-      window.speechSynthesis.speak(utter);
+      setAvatarMood('idle', `Keling, ${currentSubject} bo'yicha qoidalarni yana bir bor ko'rib chiqamiz.`);
+      speak(`${activeLesson.explanation} ${activeLesson.problem} ${activeLesson.solution}`);
     }
 
     function togglePlayback() {
@@ -649,7 +559,7 @@
         isSpeaking = false;
         document.getElementById('btnAudioToggle').innerText = '▶ Ovozli O\'qish';
       } else {
-        speakText(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
+        speak(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
       }
     }
 
@@ -659,7 +569,6 @@
       document.getElementById('volLabel').innerText = Math.round(parseFloat(document.getElementById('volSlider').value) * 100) + '%';
     }
 
-    // QUIZ SYSTEM
     function resetQuiz() {
       isQuizActive = false;
       quizQuestions = activeLesson.questions;
@@ -669,7 +578,7 @@
       document.getElementById('quizCounter').innerText = `Savol: 1 / ${quizQuestions.length}`;
       document.getElementById('quizBody').innerHTML = `
         <div class="py-6 text-center space-y-3">
-          <p class="text-slate-300 text-xs sm:text-sm">${currentGrade}-sinf dasturi bo'yicha ${quizQuestions.length} ta test savoli tayyorlangan.</p>
+          <p class="text-slate-300 text-xs sm:text-sm">${currentGrade}-sinf dasturi bo'yicha ${quizQuestions.length} ta test savoli tayyor.</p>
           <button onclick="startQuiz()" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition">
             Savol-javobni Boshlash (${quizQuestions.length} ta savol)
           </button>
@@ -731,10 +640,10 @@
       if (isCorrect) {
         score += 100;
         document.getElementById('scoreBadge').innerText = score;
-        setAvatarMood('happy', "✅ A'lo! To'g'ri javobni tanladingiz!");
+        setAvatarMood('happy', "✅ A'lo! To'g'ri javob!");
         confetti({ particleCount: 40, spread: 50, origin: { y: 0.7 } });
       } else {
-        setAvatarMood('strict', "⚠️ Xatolik! Tushuntirishga diqqat bilan qarang!");
+        setAvatarMood('strict', "⚠️ Xatolik!");
       }
 
       const total = quizQuestions.length;
@@ -768,10 +677,10 @@
       const isPass = percent >= 60;
 
       if (isPass) {
-        setAvatarMood('happy', `🎉 Barakalla! Siz ${percent}% natija bilan testdan muvaffaqiyatli o'tdingiz!`);
+        setAvatarMood('happy', `🎉 Barakalla! Siz ${percent}% natija bilan o'tdingiz!`);
         confetti({ particleCount: 120, spread: 90, origin: { y: 0.5 } });
       } else {
-        setAvatarMood('strict', `⚠️ Natijangiz ${percent}%. Bu 60% dan past. Mavzuning tushunarsiz qismlarini qayta o'rganishingiz zarur!`);
+        setAvatarMood('strict', `⚠️ Natijangiz ${percent}%. 60% dan past.`);
       }
 
       document.getElementById('quizBody').innerHTML = `
@@ -781,18 +690,12 @@
           <div class="font-mono text-sm ${isPass ? 'text-emerald-400' : 'text-rose-400'} font-bold">
             Natija: ${percent}% (${correctCount} / ${total}) · O'tish bali: kamida 60%
           </div>
-          <p class="text-xs text-slate-300 max-w-md mx-auto">
-            ${isPass ? 'Siz barcha asosiy tushunchalarni chuqur o\'zlashtirdingiz. Yangi mavzuga o\'tishingiz mumkin!' : 'Natija 60% dan past bo\'lgani sababli yangi mavzuga o\'tish qulflangan. Tushunarsiz qismlarni qayta takrorlang!'}
-          </p>
           <div class="flex flex-wrap justify-center gap-3 pt-2">
             ${isPass ? `
               <button onclick="advanceToNextTopic()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-bold rounded-xl text-xs sm:text-sm">
-                🚀 Keyingi Mavzuga O'tish: ${activeLesson.nextTopic}
+                🚀 Keyingi Mavzuga O'tish
               </button>
             ` : `
-              <button onclick="reviewExplanation()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs">
-                Mavzuni Qayta O'rganish
-              </button>
               <button onclick="startQuiz()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs border border-slate-700">
                 Testni Qayta Topshirish
               </button>
@@ -806,7 +709,6 @@
       applyTopic(activeLesson.nextTopic);
     }
 
-    // Startup
     initUI();
     resetQuiz();
   </script>
