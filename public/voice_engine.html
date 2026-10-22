@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OmniCore AI — Adaptive School AI Teacher (Moslashuvchan Maktab AI O'qituvchisi)</title>
-  <meta name="description" content="OmniCore AI Ecosystem: Maktab o'quvchilari uchun moslashuvchan AI repetitor. 1-4 sinf: 10 savol, 5-8 sinf: 20 savol, 9-11 sinf: 30 savol. 60% o'tish bali." />
+  <title>OmniCore AI — Adaptive School AI Teacher (Aisha TTS Integratsiyalashgan)</title>
+  <meta name="description" content="OmniCore AI Ecosystem: Maktab o'quvchilari uchun moslashuvchan AI repetitor. Aisha TTS sifatli o'zbekcha ovozi bilan." />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -212,10 +212,10 @@
           <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs" id="recommendedTopics"></div>
         </div>
 
-        <!-- Audio controls (Aisha TTS Proxy Connected) -->
+        <!-- Audio controls (Aisha TTS HD Voice Connected) -->
         <div class="cyber-card-purple rounded-2xl p-4 space-y-3">
           <div class="flex items-center justify-between pb-2 border-b border-purple-500/20 text-xs">
-            <span class="font-bold text-white uppercase">Aisha TTS (Cloudflare Proxy)</span>
+            <span class="font-bold text-white uppercase">Aisha High-Definition TTS Engine</span>
             <button onclick="togglePlayback()" id="btnAudioToggle" class="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition">
               ▶ Ovozli O'qish
             </button>
@@ -323,49 +323,72 @@
   </main>
 
   <footer class="border-t border-cyan-500/10 mt-12 py-5 bg-[#05070e] text-center text-xs text-slate-500 font-mono">
-    OmniCore AI Ecosystem · Maktab AI Repetitori · 1-4 sinf (10 savol), 5-8 sinf (20), 9-11 sinf (30) · 60% O'tish Bali
+    OmniCore AI Ecosystem · Maktab AI Repetitori · Aisha TTS Integratsiyasi bilan
   </footer>
 
-  <!-- SCRIPT LOGIC (AISHA TTS PROXY WORKER CONNECTED) -->
+  <!-- SCRIPT LOGIC (AISHA TTS DIRECT INTEGRATION) -->
   <script>
     mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
-    // Cloudflare Worker URL
+    // Cloudflare Worker Proxy URL
     const WORKER_URL = 'https://wild-rice-449a.y-u-umarxon2010.workers.dev/';
 
+    let currentAudio = null;
+    let isSpeaking = false;
+
+    /**
+     * Aisha TTS Ovoz Generator
+     * Faqat Cloudflare Worker orqali Aisha TTS ishlatiladi.
+     */
     async function speak(text) {
       if (!text) return;
+
       try {
-        window.speechSynthesis.cancel();
+        // Avvalgi yangrayotgan audioni to'xtatish
+        if (currentAudio) {
+          currentAudio.pause();
+          currentAudio = null;
+        }
+
+        isSpeaking = true;
+        const btnToggle = document.getElementById('btnAudioToggle');
+        if (btnToggle) btnToggle.innerText = '⏳ Yuklanmoqda...';
+
         const response = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ transcript: text, language: 'uz' }),
         });
-        if (!response.ok) throw new Error("Worker xatosi");
+
+        if (!response.ok) {
+          throw new Error("Aisha TTS API xatosi: Status " + response.status);
+        }
+
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = new Audio(audioUrl);
-        await audio.play();
-      } catch (error) {
-        console.warn("Aisha TTS ishlamadi, brauzer ovoziga o'tilmoqda...", error);
-        speakLocal(text);
-      }
-    }
+        
+        currentAudio = new Audio(audioUrl);
+        
+        // Tezlik va ovoz balandligini sozlash
+        const speedVal = parseFloat(document.getElementById('rateSlider').value) || 1.0;
+        const volVal = parseFloat(document.getElementById('volSlider').value) || 1.0;
+        currentAudio.playbackRate = speedVal;
+        currentAudio.volume = volVal;
 
-    function speakLocal(text) {
-      if (!('speechSynthesis' in window)) return;
-      const voices = window.speechSynthesis.getVoices();
-      const uzVoice = voices.find(v => v.lang.startsWith('uz') || v.lang.startsWith('UZ'));
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (uzVoice) {
-        utterance.voice = uzVoice;
-        utterance.lang = 'uz-UZ';
-      } else {
-        utterance.lang = 'ru-RU';
-        utterance.rate = 0.85;
+        currentAudio.onended = () => {
+          isSpeaking = false;
+          if (btnToggle) btnToggle.innerText = "▶ Ovozli O'qish";
+        };
+
+        await currentAudio.play();
+        if (btnToggle) btnToggle.innerText = "⏹ To'xtatish";
+
+      } catch (error) {
+        console.error("Aisha TTS xatoligi:", error);
+        isSpeaking = false;
+        const btnToggle = document.getElementById('btnAudioToggle');
+        if (btnToggle) btnToggle.innerText = "▶ Ovozli O'qish";
       }
-      window.speechSynthesis.speak(utterance);
     }
 
     const MANDATORY_QUESTION = "Mavzuni o'zlashtirib bo'ldingizmi? Mavzuga oid savol-javoblar qilamizmi keyingi mavzuga o'tishimiz uchun?";
@@ -383,7 +406,6 @@
     let currentGradeTier = '5-8';
     let currentGrade = 7;
     let voicePersona = 'jasur';
-    let isSpeaking = false;
     let score = 0;
 
     let quizQuestions = [];
@@ -419,7 +441,7 @@
       return {
         subject: subj,
         topic: `${subj} Asosiy Qoidalari`,
-        explanation: `${subj} bo'yicha darsimiz ${currentGrade}-sinf dasturiga moslashtirilgan.`,
+        explanation: `${subj} bo'yicha darsimiz ${currentGrade}-sinf dasturiga moslashtirilgan. Barcha qoidalarni o'rganing.`,
         formulas: ['1-qoida: Qoidani eslab qoling', '2-qoida: Formulaga tayanib ishlang', '3-qoida: 60% dan yuqori natija oling'],
         problem: `${subj} fanidan namunaviy masala.`,
         solution: `Bosqichma-bosqich yechim va tahlil.`,
@@ -542,7 +564,7 @@
       const input = document.getElementById('topicInput').value.trim() || activeLesson.topic;
       activeLesson = getLessonData(currentSubject);
       activeLesson.topic = input;
-      activeLesson.explanation = `${input} — bu ${currentSubject} fanining ${currentGrade}-sinfidagi asosiy mavzularidan biri.`;
+      activeLesson.explanation = `${input} — bu ${currentSubject} fanining ${currentGrade}-sinfidagi asosiy mavzularidan biri. Barcha qoidalarni o'rganing.`;
       renderLesson();
       resetQuiz();
       speak(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
@@ -554,10 +576,10 @@
     }
 
     function togglePlayback() {
-      if (isSpeaking) {
-        window.speechSynthesis.cancel();
+      if (isSpeaking && currentAudio) {
+        currentAudio.pause();
         isSpeaking = false;
-        document.getElementById('btnAudioToggle').innerText = '▶ Ovozli O\'qish';
+        document.getElementById('btnAudioToggle').innerText = "▶ Ovozli O'qish";
       } else {
         speak(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
       }
@@ -567,6 +589,11 @@
       document.getElementById('rateLabel').innerText = parseFloat(document.getElementById('rateSlider').value).toFixed(1) + 'x';
       document.getElementById('pitchLabel').innerText = parseFloat(document.getElementById('pitchSlider').value).toFixed(1);
       document.getElementById('volLabel').innerText = Math.round(parseFloat(document.getElementById('volSlider').value) * 100) + '%';
+      
+      if (currentAudio) {
+        currentAudio.playbackRate = parseFloat(document.getElementById('rateSlider').value) || 1.0;
+        currentAudio.volume = parseFloat(document.getElementById('volSlider').value) || 1.0;
+      }
     }
 
     function resetQuiz() {
@@ -709,8 +736,10 @@
       applyTopic(activeLesson.nextTopic);
     }
 
+    // Startup
     initUI();
     resetQuiz();
   </script>
 </body>
 </html>
+
