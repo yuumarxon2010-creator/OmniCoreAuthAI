@@ -34,6 +34,7 @@ import {
   Layers,
   GraduationCap
 } from 'lucide-react';
+import { latinToCyrillicUzbek } from './utils/transliterate';
 
 mermaid.initialize({
   startOnLoad: false,
@@ -74,99 +75,217 @@ interface LessonData {
   happyFeedback?: string;
 }
 
+// Initial flagship lessons per subject so switching immediately shows the correct subject!
+const DEFAULT_SUBJECT_LESSONS: Record<SubjectType, LessonData> = {
+  'Ingliz Tili': {
+    topic: 'Ingliz Tili: Present Perfect Tense va Natijaviylik',
+    category: 'Ingliz Tili Grammatikasi',
+    subject: 'Ingliz Tili',
+    simpleExplanation: 'Present Perfect zamoni (have/has + V3) o\'tmishda sodir bo\'lgan, ammo natijasi aynan hozirgi lahzada ko\'rinib turgan harakatlar uchun ishlatiladi. Masalan, "I have lost my key" jumlasi kalitning o\'tmishda yo\'qolgani va hozir ham uyga kira olmaslik natijasini bildiradi.',
+    mermaidDiagram: `graph LR
+    A[O'tmishdagi Harakat Past Action] -->|have / has + V3| B[Hozirgi Natija Present Result]
+    B --> C[Tajriba yoki Hozirgi Holat]
+    C --> D[Signal so'zlar: already, just, yet, ever]`,
+    speechScript: 'Present Perfect zamoni o\'tmishdagi harakatning hozirgi paytga bog\'liq natijasini ko\'rsatadi. Have yoki has yordamchi fe\'li va fe\'lning uchinchi shakli orqali yasaladi.',
+    quiz: {
+      question: '«She ______ already finished her homework.» bo\'sh o\'ringa to\'g\'ri yordamchi fe\'lni qo\'ying:',
+      options: ['has', 'have', 'is'],
+      correctIndex: 0,
+      explanation: 'Ingliz tilida 3-shaxs birlik (He, She, It) uchun Present Perfect da faqat «has» yordamchi fe\'li qo\'llaniladi.'
+    },
+    keyPoints: [
+      'Formula: Subject + have/has + Past Participle (V3)',
+      'Past Simple o\'tgan vaqtni (yesterday), Present Perfect esa hozirgi natijani ta\'kidlaydi',
+      'Signal so\'zlar: already, just, never, ever, yet, recently'
+    ],
+    strictFeedback: 'Diqqatsizlik! «She» olmoshidan keyin «have» emas, «has» yordamchi fe\'li qo\'yiladi!',
+    happyFeedback: 'Excellent! Siz 3-shaxs birlik uchun «has» fe\'li qoidasini a\'lo darajada bilasiz!'
+  },
+  'Matematika': {
+    topic: 'Matematika: Pifagor Teoremasi va Geometriya',
+    category: 'Geometriya',
+    subject: 'Matematika',
+    simpleExplanation: 'Pifagor teoremasiga ko\'ra, to\'g\'ri burchakli uchburchakda gipotenuza kvadratining qiymati katetlar kvadratlarining yig\'indisiga doimo teng bo\'ladi. Ushbu teorema barcha fazoviy masofalarni va vektor uzunliklarini aniqlashda poydevor hisoblanadi.',
+    mermaidDiagram: `graph TD
+    A[To'g'ri Burchakli Uchburchak] --> B[Katet a va Katet b]
+    B --> C[Katetlar Kvadratlari: a² + b²]
+    C --> D[Gipotenuza Kvadrati c²]
+    D --> E[Masofa va Vektor Formulalari]`,
+    speechScript: 'Pifagor teoremasi to\'g\'ri burchakli uchburchakda gipotenuza kvadrati katetlar kvadratlarining yig\'indisiga teng ekanligini ta\'kidlaydi. Bu geometriya va fazoviy koordinatalarning asosidir.',
+    quiz: {
+      question: 'To\'g\'ri burchakli uchburchakning katetlari 3 va 4 ga teng bo\'lsa, gipotenuzasi nechaga teng bo\'ladi?',
+      options: ['5', '6', '7'],
+      correctIndex: 0,
+      explanation: 'Pifagor teoremasi bo\'yicha: c² = 3² + 4² = 9 + 16 = 25. Demak, c = √25 = 5 (Misr uchburchagi).'
+    },
+    keyPoints: [
+      'Klassik formula: a² + b² = c²',
+      'Teskari Pifagor teoremasi burchakning 90° ekanligini isbotlashda qo\'llaniladi',
+      'Fazoviy 3D masofa: d = √(x² + y² + z²)'
+    ],
+    strictFeedback: 'Hisoblashda adashdingiz! 3² + 4² = 9 + 16 = 25, uning kvadrat ildizi esa 5 bo\'ladi!',
+    happyFeedback: 'Ofarin! Qadimgi Misr uchburchagi qoidasini a\'lo darajada bilasiz!'
+  },
+  'Fizika': {
+    topic: 'Fizika: Butunjahon Gravitatsiya Qonuni',
+    category: 'Klassik Mexanika',
+    subject: 'Fizika',
+    simpleExplanation: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.",
+    mermaidDiagram: `graph TD
+    A[Massaga ega jism M1] -->|Gravitatsiya kuchi F| C[O'zaro tortishish markazi]
+    B[Massaga ega jism M2] -->|Gravitatsiya kuchi F| C
+    C --> D[Masofa kvadrati R² ga teskari proportsional]
+    D --> E[Sayyoralar orbital harakati]`,
+    speechScript: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning tortishish kuchi shunchalik kuchli bo'ladi.",
+    quiz: {
+      question: "Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o'zgaradi?",
+      options: [
+        "2 barobar kamayadi",
+        "4 barobar kamayadi",
+        "2 barobar ortadi"
+      ],
+      correctIndex: 1,
+      explanation: "Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/R²). Shu bois masofa 2 marta ortganda, kuch 4 barobar kamayadi!"
+    },
+    keyPoints: [
+      "Nyuton butunjahon tortishish formulasi: F = G · (m₁ · m₂) / r²",
+      "Gravitatsiya doimiysi: G ≈ 6.674 × 10⁻¹¹ N·m²/kg²",
+      "Sayyoralar Quyosh atrofida ellips orbitalar bo'ylab harakatlanadi"
+    ],
+    strictFeedback: "Diqqat! Masofa kvadratiga e'tibor bermadingiz. F = G·m1·m2/r² formulasini qayta ko'rib chiqing!",
+    happyFeedback: "Ajoyib! Siz Nyutonning teskari kvadratlar qonunini to'g'ri tushundingiz!"
+  },
+  'Kimyo': {
+    topic: 'Kimyo: Mendeleyev Davriy Qonuni va Atom Tuzilishi',
+    category: 'Anorganik Kimyo',
+    subject: 'Kimyo',
+    simpleExplanation: 'Mendeleyev davriy qonuniga ko\'ra, kimyoviy elementlarning xossalari ularning atom yadrosi zaryadiga (protonlar soniga) davriy ravishda bog\'liqdir. Tashqi elektron qobig\'idagi elektronlar soni elementning qanday reaksiyaga kirishishini belgilab beradi.',
+    mermaidDiagram: `graph TD
+    A[Atom Yadrosi: Protonlar Z] --> B[Davriy Jadvaldagi Tartib Raqami]
+    B --> C[Elektron Qobiqlar Pog'onasi]
+    C --> D[Valent Elektronlar]
+    D --> E[Elementning Kimyoviy Xossalari]`,
+    speechScript: 'Mendeleyev davriy qonuniga ko\'ra, elementlarning xossalari ularning yadro zaryadiga davriy bog\'liqdir. Tashqi qobiqdagi valent elektronlar elementlarning xulq-atvorini belgilaydi.',
+    quiz: {
+      question: 'Atomning kimyoviy xossalarini va uning davriy jadvaldagi o\'rnini asosan nima belgilaydi?',
+      options: [
+        'Yadrodagi neytronlar soni',
+        'Yadrodagi protonlar soni (yadro zaryadi)',
+        'Moddaning umumiy og\'irligi'
+      ],
+      correctIndex: 1,
+      explanation: 'Davriy qonunning zamonaviy ta\'rifi aynan yadro zaryadi (protonlar soni Z) ga tayanadi.'
+    },
+    keyPoints: [
+      'Zaryad soni Z = Protonlar soni = Neytral atomdagi elektronlar soni',
+      'Guruh raqami tashqi valent elektronlar sonini ko\'rsatadi',
+      'Davr raqami elektron qavatlarning umumiy soniga teng'
+    ],
+    strictFeedback: 'Diqqat qiling! Neytronlar izotoplarni hosil qiladi, elementning xossalarini esa yadro zaryadi belgilaydi!',
+    happyFeedback: 'Juda to\'g\'ri! Yadro zaryadi davriy qonunning eng asosiy fundamentidir!'
+  },
+  'Tarix': {
+    topic: 'Tarix: Amir Temur va Markazlashgan Davlat Boshqaruvi',
+    category: 'O\'zbekiston Tarixi',
+    subject: 'Tarix',
+    simpleExplanation: 'Sohibqiron Amir Temur tarqoq feodal bekliklarni birlashtirib, qudratli markazlashgan davlat va qonun ustuvorligiga asoslangan adolat tizimini barpo etdi. Uning «Kuch — adolatdadir» shiori Buyuk Ipak yo\'lida xavfsizlik va Temuriylar Renessansiga yo\'l ochdi.',
+    mermaidDiagram: `graph TD
+    A[Tarqoq bekliklar birlashuvi] --> B[Markazlashgan Quvvatli Davlat]
+    B --> C[Temur Tuzuklari: Adolat va Qonun]
+    C --> D[Buyuk Ipak Yo'li Xavfsizligi]
+    D --> E[Ilm-fan va Temuriylar Renessansi]`,
+    speechScript: 'Amir Temur tarqoq bekliklarni birlashtirib, qudratli davlat va adolat tizimini yaratdi. Uning Kuch adolatdadir shiori Buyuk Ipak yo\'lida xavfsizlik va ilm-fan taraqqiyotini ta\'minladi.',
+    quiz: {
+      question: 'Amir Temur davlat boshqaruvida qaysi shiorni o\'zining bosh strategik mezoni qilib olgan?',
+      options: [
+        'Kuch — adolatdadir',
+        'Tinchlik — boylikdadir',
+        'G\'alaba — kuchdadir'
+      ],
+      correctIndex: 0,
+      explanation: 'Amir Temurning davlat muhri va uzugida «Rosti-rusti» (Kuch — adolatdadir) shiori zarb etilgan bo\'lib, u butun saltanat qonunlarining o\'zagi bo\'lgan.'
+    },
+    keyPoints: [
+      '«Temur tuzuklari» — davlat boshqaruvi va harbiy san\'atning noyob qomusidir',
+      'Markazlashgan savdo yo\'llari Sharq va G\'arb madaniyatlarini bog\'lagan',
+      'Samarqand shahrida jahon miqyosidagi me\'moriy obidalar qad ko\'tardi'
+    ],
+    strictFeedback: 'Tarixiy manbalarni unutdingiz! Sohibqiron Amir Temurning bosh g\'oyasi aynan «Kuch — adolatdadir» bo\'lgan!',
+    happyFeedback: 'Tasanno! Buyuk Sohibqironning o\'lmas adolat shiorini to\'g\'ri esladingiz!'
+  },
+  'Informatika/AI': {
+    topic: 'Informatika: Sun\'iy Neyron Tarmoqlari',
+    category: 'Sun\'iy Intellekt',
+    subject: 'Informatika/AI',
+    simpleExplanation: 'Sun\'iy neyron tarmoqlari — inson miyasi biologik neyronlari ishlash prinsipiga taqlid qiluvchi matematik hisoblash algoritmidir. Ular kiruvchi ma\'lumotlarni ko\'p qatlamli vaznlar va aktivatsiya funksiyalari orqali qayta ishlab, murakkab qonuniyatlarni mustaqil taniy oladi.',
+    mermaidDiagram: `graph LR
+    A[Kirish Qatlami x] -->|Vaznlar W| B[Yashirin Qatlam Neyronlari]
+    B -->|Aktivatsiya ReLU| C[Chiqish Qatlami y]
+    C -->|Xatolik Hisobi| D[Backpropagation & Gradient]
+    D -.->|Vaznlarni yangilash| B`,
+    speechScript: 'Sun\'iy neyron tarmoqlari inson miyasi tuzilishiga taqlid qiluvchi algoritmlardir. Ular qatlamlar orqali ma\'lumotlarni tahlil qilib, xatolarni kamaytirish orqali mukammallashadi.',
+    quiz: {
+      question: 'Neyron tarmog\'ini o\'qitishda chiqishdagi xatolikni orqaga tarqatib vaznlarni yangilash algoritmi qanday ataladi?',
+      options: [
+        'Backpropagation (Orqaga tarqalish)',
+        'Overfitting (Qayta moslashish)',
+        'Data Augmentation'
+      ],
+      correctIndex: 0,
+      explanation: 'Backpropagation algoritmi xatolik gradientini hisoblab, tarmoqdagi barcha vaznlarni teskari tartibda aniq yangilaydi.'
+    },
+    keyPoints: [
+      'Neyron matematik modeli: y = f(∑(w_i * x_i) + b)',
+      'Aktivatsiya funksiyalari (ReLU, GELU) chiziqsiz murakkab bog\'liqliklarni o\'rgatadi',
+      'Chuqur o\'rganish (Deep Learning) — ko\'p sonli yashirin qatlamlarga asoslanadi'
+    ],
+    strictFeedback: 'Xato! Overfitting bu xatolikni tarqatish emas, balki tarmoqning haddan tashqari yodlab olish kasalligidir!',
+    happyFeedback: 'Mukammal! Siz mashinali o\'rganishning eng muhim ustuni bo\'lgan Backpropagation algoritmini to\'g\'ri tanladingiz!'
+  }
+};
+
 const SUBJECT_CONFIGS: Record<SubjectType, {
   icon: string;
-  color: string;
-  borderColor: string;
-  badgeBg: string;
   defaultTopic: string;
   topics: string[];
 }> = {
-  'Informatika/AI': {
-    icon: '💻',
-    color: 'text-cyan-400',
-    borderColor: 'border-cyan-500/40',
-    badgeBg: 'bg-cyan-950/50 text-cyan-300',
-    defaultTopic: 'Informatika - Sun\'iy Neyron Tarmoqlari',
-    topics: ['Neyron Tarmoqlari', 'Blokcheyn Texnologiyasi', 'Algoritmlar Murakkabligi', 'Kiberxavfsizlik Asoslari']
+  'Ingliz Tili': {
+    icon: '🇬🇧',
+    defaultTopic: 'Ingliz Tili - Present Perfect Tense va Natijaviylik',
+    topics: ['Present Perfect Tense', 'Second Conditional', 'Passive Voice', 'IELTS Speaking Idioms']
   },
   'Matematika': {
     icon: '📐',
-    color: 'text-blue-400',
-    borderColor: 'border-blue-500/40',
-    badgeBg: 'bg-blue-950/50 text-blue-300',
     defaultTopic: 'Matematika - Pifagor Teoremasi va Geometriya',
     topics: ['Pifagor Teoremasi', 'Ehtimollar Nazariyasi', 'Hosila va Integral', 'Matritsalar va Determinant']
   },
   'Fizika': {
     icon: '⚛️',
-    color: 'text-indigo-400',
-    borderColor: 'border-indigo-500/40',
-    badgeBg: 'bg-indigo-950/50 text-indigo-300',
-    defaultTopic: 'Fizika - Gravitatsiya Qonuni',
+    defaultTopic: 'Fizika - Butunjahon Gravitatsiya Qonuni',
     topics: ['Gravitatsiya Qonuni', 'Kvant Superpozitsiyasi', 'Termodinamika va Entropiya', 'Nisbiylik Nazariyasi']
   },
   'Kimyo': {
     icon: '🧪',
-    color: 'text-emerald-400',
-    borderColor: 'border-emerald-500/40',
-    badgeBg: 'bg-emerald-950/50 text-emerald-300',
     defaultTopic: 'Kimyo - Mendeleyev Davriy Qonuni va Atom',
     topics: ['Mendeleyev Qonuni', 'Kovalent Bog\'lanish', 'Kislota va Asoslar', 'Elektroliz Jarayoni']
   },
   'Tarix': {
     icon: '🏛️',
-    color: 'text-amber-400',
-    borderColor: 'border-amber-500/40',
-    badgeBg: 'bg-amber-950/50 text-amber-300',
     defaultTopic: 'Tarix - Amir Temur va Markazlashgan Davlat',
     topics: ['Amir Temur Saltanati', 'Buyuk Ipak Yo\'li', 'Temuriylar Renessansi', 'Qadimgi Bobil Qonunlari']
   },
-  'Ingliz Tili': {
-    icon: '🇬🇧',
-    color: 'text-rose-400',
-    borderColor: 'border-rose-500/40',
-    badgeBg: 'bg-rose-950/50 text-rose-300',
-    defaultTopic: 'Ingliz Tili - Present Perfect Tense va Natijaviylik',
-    topics: ['Present Perfect Tense', 'Conditional Sentences', 'Passive Voice', 'Essential Phrasal Verbs']
+  'Informatika/AI': {
+    icon: '💻',
+    defaultTopic: 'Informatika - Sun\'iy Neyron Tarmoqlari',
+    topics: ['Neyron Tarmoqlari', 'Blokcheyn Texnologiyasi', 'Algoritmlar Murakkabligi', 'Kiberxavfsizlik Asoslari']
   }
-};
-
-const INITIAL_LESSON: LessonData = {
-  topic: 'Fizika: Butunjahon Gravitatsiya Qonuni',
-  category: 'Fizika',
-  subject: 'Fizika',
-  simpleExplanation: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.",
-  mermaidDiagram: `graph TD
-  A[Massaga ega jism M1] -->|Gravitatsiya kuchi F| C[O'zaro tortishish markazi]
-  B[Massaga ega jism M2] -->|Gravitatsiya kuchi F| C
-  C --> D[Masofa kvadrati R² ga teskari proportsional]
-  D --> E[Sayyoralar orbital harakati]`,
-  speechScript: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning tortishish kuchi shunchalik kuchli bo'ladi.",
-  quiz: {
-    question: "Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o'zgaradi?",
-    options: [
-      "2 barobar kamayadi",
-      "4 barobar kamayadi",
-      "2 barobar ortadi"
-    ],
-    correctIndex: 1,
-    explanation: "Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/R²). Shu bois masofa 2 marta ortganda, kuch 4 barobar kamayadi!"
-  },
-  keyPoints: [
-    "Nyuton butunjahon tortishish formulasi: F = G · (m₁ · m₂) / r²",
-    "Gravitatsiya doimiysi: G ≈ 6.674 × 10⁻¹¹ N·m²/kg²",
-    "Sayyoralar Quyosh atrofida ellips orbitalar bo'ylab harakatlanadi"
-  ],
-  strictFeedback: "Diqqat! Masofa kvadratiga e'tibor bermadingiz. F = G·m1·m2/r² formulasini qayta ko'rib chiqing!",
-  happyFeedback: "Ajoyib! Siz Nyutonning teskari kvadratlar qonunini to'g'ri tushundingiz!"
 };
 
 export default function App() {
   // Navigation & Subject State
   const [selectedSubject, setSelectedSubject] = useState<SubjectType>('Fizika');
-  const [topicInput, setTopicInput] = useState('Fizika - Gravitatsiya qonuni');
-  const [lesson, setLesson] = useState<LessonData>(INITIAL_LESSON);
+  const [topicInput, setTopicInput] = useState('Fizika - Butunjahon Gravitatsiya Qonuni');
+  const [lesson, setLesson] = useState<LessonData>(DEFAULT_SUBJECT_LESSONS['Fizika']);
   const [loading, setLoading] = useState(false);
   const [score, setScore] = useState(0);
 
@@ -196,11 +315,20 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const mouthIntervalRef = useRef<any>(null);
 
-  // Switch subject helper
+  // Switch subject helper: strictly update to the selected subject and load its lesson immediately!
   const handleSelectSubject = (subj: SubjectType) => {
     setSelectedSubject(subj);
     const config = SUBJECT_CONFIGS[subj];
+    const defaultLesson = DEFAULT_SUBJECT_LESSONS[subj];
+    
+    // Immediately set topic and lesson to that subject so it never defaults to Gravitatsiya
     setTopicInput(config.defaultTopic);
+    setLesson(defaultLesson);
+    setSelectedOption(null);
+    setQuizSubmitted(false);
+    setAvatarSpeechText(defaultLesson.speechScript || defaultLesson.simpleExplanation);
+
+    // Call AI to generate/refresh within this specific subject
     handleGenerate(config.defaultTopic, subj);
   };
 
@@ -226,7 +354,7 @@ export default function App() {
   useEffect(() => {
     if (avatarMood === 'speaking') {
       mouthIntervalRef.current = setInterval(() => {
-        setMouthOpen(Math.floor(Math.random() * 4)); // 0: closed, 1: small, 2: mid, 3: wide
+        setMouthOpen(Math.floor(Math.random() * 4));
       }, 140);
     } else {
       if (mouthIntervalRef.current) clearInterval(mouthIntervalRef.current);
@@ -238,17 +366,22 @@ export default function App() {
   }, [avatarMood]);
 
   // Natural Uzbek TTS / Web Speech Playback
+  // STRICT RULE: UI stays 100% Latin, but audio utterance converts to Cyrillic in background for authentic pronunciation!
   const speakLessonText = (customText?: string) => {
     stopPlayback();
 
-    const text = customText || lesson.speechScript || lesson.simpleExplanation;
-    setAvatarSpeechText(text);
+    // 1. Visual Text stays 100% Latin on screen!
+    const latinText = customText || lesson.speechScript || lesson.simpleExplanation;
+    setAvatarSpeechText(latinText);
     setAvatarMood('speaking');
     setIsSpeaking(true);
 
+    // 2. Audio Utterance is transliterated to Cyrillic ONLY in background for flawless pronunciation!
+    const cyrillicSpeechText = latinToCyrillicUzbek(latinText);
+
     if (audioEngine === 'google_natural') {
       // Natural Uzbek Google TTS audio stream
-      const audioUrl = `/api/tts?text=${encodeURIComponent(text)}&voice=${voicePersona}&t=${Date.now()}`;
+      const audioUrl = `/api/tts?text=${encodeURIComponent(cyrillicSpeechText)}&voice=${voicePersona}&t=${Date.now()}`;
       const audio = new Audio(audioUrl);
       audio.volume = speechVolume;
       audio.playbackRate = speechRate;
@@ -259,19 +392,19 @@ export default function App() {
       };
       audio.onerror = () => {
         console.warn('Natural TTS stream fallback to Web Speech API');
-        fallbackWebSpeech(text);
+        fallbackWebSpeech(cyrillicSpeechText);
       };
 
       audioRef.current = audio;
       audio.play().catch(() => {
-        fallbackWebSpeech(text);
+        fallbackWebSpeech(cyrillicSpeechText);
       });
     } else {
-      fallbackWebSpeech(text);
+      fallbackWebSpeech(cyrillicSpeechText);
     }
   };
 
-  const fallbackWebSpeech = (text: string) => {
+  const fallbackWebSpeech = (cyrillicSpeechText: string) => {
     if (!('speechSynthesis' in window)) {
       setIsSpeaking(false);
       setAvatarMood('idle');
@@ -279,9 +412,10 @@ export default function App() {
     }
 
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    // Feed the Cyrillic text to speech engine
+    const utterance = new SpeechSynthesisUtterance(cyrillicSpeechText);
 
-    // Pick best Uzbek voice or tuned persona
+    // Pick best Uzbek or Turkic/Russian voice capable of Cyrillic phonetics
     const voices = window.speechSynthesis.getVoices();
     const uzVoice = voices.find(v => v.lang.toLowerCase().includes('uz'));
     if (uzVoice) {
@@ -328,7 +462,7 @@ export default function App() {
     setAvatarMood('idle');
   };
 
-  // Lesson Generation
+  // Lesson Generation strictly scoped to the subject
   const handleGenerate = async (topicToRun?: string, subjectToRun?: SubjectType) => {
     const topic = topicToRun || topicInput.trim();
     const subject = subjectToRun || selectedSubject;
@@ -339,7 +473,7 @@ export default function App() {
     setSelectedOption(null);
     setQuizSubmitted(false);
     setAvatarMood('speaking');
-    setAvatarSpeechText(`${subject} fanidan dars tayyorlanmoqda...`);
+    setAvatarSpeechText(`${subject} fani bo'yicha leksiya tayyorlanmoqda...`);
 
     try {
       const response = await fetch('/api/generate-lesson', {
@@ -354,6 +488,9 @@ export default function App() {
 
       if (!response.ok) throw new Error('Generation error');
       const data: LessonData = await response.json();
+      
+      // Ensure the generated lesson subject strictly matches selected subject
+      data.subject = subject;
       setLesson(data);
       setAvatarSpeechText(data.speechScript || data.simpleExplanation);
 
@@ -362,8 +499,10 @@ export default function App() {
         speakLessonText(data.speechScript || data.simpleExplanation);
       }, 500);
     } catch (e) {
-      console.warn('API fallback', e);
-      setAvatarMood('idle');
+      console.warn('API fallback to subject-isolated default', e);
+      const fallback = DEFAULT_SUBJECT_LESSONS[subject];
+      setLesson(fallback);
+      setAvatarSpeechText(fallback.speechScript || fallback.simpleExplanation);
     } finally {
       setLoading(false);
     }
@@ -379,7 +518,8 @@ export default function App() {
     if (isCorrect) {
       setScore(prev => prev + 100);
       setAvatarMood('happy');
-      setAvatarSpeechText(lesson.happyFeedback || "✅ Barakalla! Siz to'g'ri javobni tanladingiz. Diqqat darajasi a'lo!");
+      const happyText = lesson.happyFeedback || "✅ Barakalla! Siz to'g'ri javobni tanladingiz. Diqqat darajasi a'lo!";
+      setAvatarSpeechText(happyText);
       
       confetti({
         particleCount: 100,
@@ -388,9 +528,9 @@ export default function App() {
         colors: ['#06b6d4', '#10b981', '#a855f7']
       });
 
-      // Speak happy feedback
+      // Speak happy feedback in Uzbek (using background Cyrillic transliteration)
       setTimeout(() => {
-        speakLessonText(lesson.happyFeedback || "Barakalla! To'g'ri javob. Ballingiz oshirildi!");
+        speakLessonText(happyText);
       }, 300);
     } else {
       // GoPrep.gg Angry / Strict Mode!
@@ -398,7 +538,7 @@ export default function App() {
       const strictMsg = lesson.strictFeedback || "⚠️ Diqqatingizni jamlang! Bu joyda jiddiy xatoga yo'l qo'ydingiz!";
       setAvatarSpeechText(strictMsg);
 
-      // Speak strict warning
+      // Speak strict warning in Uzbek (using background Cyrillic transliteration)
       setTimeout(() => {
         speakLessonText(strictMsg);
       }, 300);
@@ -429,7 +569,7 @@ export default function App() {
               AI Cyber Avatar
             </a>
             <a href="#ovoz-boshqaruvi" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
-              Natural TTS & Voice
+              Natural Uzbek TTS
             </a>
             <a href="#kognitiv-test" className="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">
               Kognitiv Test
@@ -458,21 +598,24 @@ export default function App() {
       {/* MAIN CONTAINER */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 space-y-8 w-full">
 
-        {/* 1. FANLAR RO'YXATI (CATEGORY SELECTOR) */}
+        {/* 1. FANLAR RO'YXATI (CATEGORY SELECTOR - STRICT SUBJECT SEPARATION) */}
         <section id="fanlar-tanlovi" className="cyber-card rounded-2xl p-5 relative overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-3 pb-3 border-b border-cyan-500/20">
             <div className="flex items-center gap-2.5">
               <GraduationCap className="w-5 h-5 text-cyan-400" />
               <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                FANLAR RO'YXATI (MULTI-SUBJECT SYSTEM)
+                FANLAR BO'YICHA QAT'IY CHEKLOV & TANLOV
               </h2>
             </div>
-            <span className="text-xs text-slate-400 font-mono">
-              Tanlangan fan: <span className="text-cyan-300 font-bold">{selectedSubject}</span>
-            </span>
+            <div className="flex items-center gap-2 text-xs font-mono">
+              <span className="text-slate-400">Faol Fan:</span>
+              <span className="px-2.5 py-0.5 rounded-md bg-cyan-950 border border-cyan-500/50 text-cyan-300 font-bold">
+                {selectedSubject}
+              </span>
+            </div>
           </div>
 
-          {/* Subject Pills (Interactive Buttons) */}
+          {/* Subject Buttons */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {(Object.keys(SUBJECT_CONFIGS) as SubjectType[]).map((subj) => {
               const cfg = SUBJECT_CONFIGS[subj];
@@ -526,7 +669,7 @@ export default function App() {
             {/* AVATAR DISPLAY (Dynamic SVG Canvas with GoPrep.gg Expressive Eyebrows, Visor & Mouth) */}
             <div className="flex flex-col items-center">
               
-              {/* Reactive Speech Bubble */}
+              {/* Reactive Speech Bubble (Strictly Latin on screen!) */}
               <div className={`w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed shadow-lg ${
                 avatarMood === 'strict'
                   ? 'bg-rose-950/50 border-rose-500/60 text-rose-200'
@@ -566,18 +709,6 @@ export default function App() {
                       <stop offset="0%" stopColor="#1a233a" />
                       <stop offset="100%" stopColor="#0b0f1d" />
                     </linearGradient>
-                    <linearGradient id="visorGradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#06b6d4" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                    <linearGradient id="visorGradStrict" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#ef4444" />
-                      <stop offset="100%" stopColor="#f97316" />
-                    </linearGradient>
-                    <linearGradient id="visorGradHappy" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#10b981" />
-                      <stop offset="100%" stopColor="#06b6d4" />
-                    </linearGradient>
                   </defs>
 
                   {/* Cyber Head Chassis */}
@@ -597,7 +728,6 @@ export default function App() {
                     <g stroke="#f43f5e" strokeWidth="3" strokeLinecap="round">
                       <line x1="30" y1="36" x2="47" y2="44" />
                       <line x1="53" y1="44" x2="70" y2="36" />
-                      {/* Furrow wrinkle */}
                       <line x1="48" y1="39" x2="52" y2="39" stroke="#fda4af" strokeWidth="1.5" />
                     </g>
                   ) : avatarMood === 'happy' ? (
@@ -641,13 +771,10 @@ export default function App() {
 
                   {/* DYNAMIC MOUTH (Lip-Sync during Speech & Emotions) */}
                   {avatarMood === 'strict' ? (
-                    // Strict Tight Grimace
                     <path d="M 38,72 Q 50,67 62,72" stroke="#f43f5e" strokeWidth="2.8" strokeLinecap="round" fill="none" />
                   ) : avatarMood === 'happy' ? (
-                    // Wide Joyful Smile
                     <path d="M 36,68 Q 50,84 64,68 Z" fill="#064e3b" stroke="#10b981" strokeWidth="2" />
                   ) : avatarMood === 'speaking' ? (
-                    // Phonetic Lip-sync mouth shapes
                     mouthOpen === 3 ? (
                       <ellipse cx="50" cy="71" rx="8" ry="6" fill="#0c1527" stroke="#38bdf8" strokeWidth="2" />
                     ) : mouthOpen === 2 ? (
@@ -658,11 +785,10 @@ export default function App() {
                       <line x1="42" y1="71" x2="58" y2="71" stroke="#38bdf8" strokeWidth="2" strokeLinecap="round" />
                     )
                   ) : (
-                    // Idle Calm Dash
                     <line x1="42" y1="71" x2="58" y2="71" stroke="#64748b" strokeWidth="2.2" strokeLinecap="round" />
                   )}
 
-                  {/* Cyber Visor Telemetry Accent */}
+                  {/* Cyber Visor Line */}
                   <line x1="30" y1="28" x2="70" y2="28" stroke={avatarMood === 'strict' ? '#f43f5e' : avatarMood === 'happy' ? '#10b981' : '#06b6d4'} strokeWidth="1" strokeDasharray="3 2" />
                 </svg>
 
@@ -729,17 +855,17 @@ export default function App() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-cyan-400" />
                   <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                    DARS GENERATORI VA MAVZU
+                    DARS GENERATORI ({selectedSubject.toUpperCase()})
                   </h2>
                 </div>
-                <span className="text-xs font-mono text-cyan-400">
+                <span className="text-xs font-mono text-cyan-400 px-2 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/30">
                   {selectedSubject}
                 </span>
               </div>
 
               <div className="space-y-3">
                 <label htmlFor="topic-input" className="block text-xs font-semibold text-slate-300">
-                  MAVZU NOMINI KIRITING:
+                  {selectedSubject.toUpperCase()} MAVZUSINI KIRITING:
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2.5">
                   <input
@@ -748,7 +874,7 @@ export default function App() {
                     value={topicInput}
                     onChange={(e) => setTopicInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-                    placeholder="Masalan: Fizika - Gravitatsiya qonuni"
+                    placeholder={`Masalan: ${SUBJECT_CONFIGS[selectedSubject].defaultTopic}`}
                     className="flex-1 bg-[#0a0f1d] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition"
                   />
                   <button
@@ -759,7 +885,7 @@ export default function App() {
                     {loading ? (
                       <>
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Yaratilmoqda...</span>
+                        <span>Dars Yaratilmoqda...</span>
                       </>
                     ) : (
                       <>
@@ -772,7 +898,7 @@ export default function App() {
 
                 {/* Subject specific recommended topics */}
                 <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-400">
-                  <span className="font-medium text-slate-400">Tavsiya mavzular:</span>
+                  <span className="font-medium text-slate-400">{selectedSubject} mavzulari:</span>
                   {SUBJECT_CONFIGS[selectedSubject].topics.map((t) => (
                     <button
                       key={t}
@@ -799,9 +925,10 @@ export default function App() {
                     NATURAL UZBEK TTS & OVOZ SOZLAMALARI
                   </h2>
                 </div>
-                <span className="text-xs font-mono text-purple-400">
-                  uz-UZ Audio Core
-                </span>
+                <div className="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <span>Orqa fonda Kirill Transliteratsiyasi Faol</span>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -865,7 +992,7 @@ export default function App() {
                     <span className="text-[11px] text-slate-400">
                       {audioEngine === 'google_natural' 
                         ? 'Google Natural Uzbek TTS (Haqiqiy inson talaffuzi)' 
-                        : 'Web Speech API (Brauzer mahalliy sintezi)'}
+                        : 'Web Speech API (Lotin -> Kirill fonetik o\'girish bilan)'}
                     </span>
                   </div>
 
@@ -884,7 +1011,7 @@ export default function App() {
                         audioEngine === 'web_speech' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
                       }`}
                     >
-                      Web Speech
+                      Web Speech (Lokal)
                     </button>
                   </div>
                 </div>
@@ -970,6 +1097,11 @@ export default function App() {
                   </button>
                 </div>
 
+                <div className="p-2.5 rounded-lg bg-[#070a12]/80 border border-cyan-500/20 text-[11px] text-slate-400 flex items-center justify-between">
+                  <span>Vizual matn: <strong className="text-white">Lotin alifbosi</strong></span>
+                  <span className="text-cyan-300 font-mono">TTS audio: Kirill fonetik sintezi</span>
+                </div>
+
               </div>
             </div>
 
@@ -994,9 +1126,9 @@ export default function App() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                        SODDA TUSHUNTIRISH (2 Jumlada)
+                        SODDA TUSHUNTIRISH ({lesson.subject.toUpperCase()})
                       </h2>
-                      <span className="text-[11px] text-slate-400">Oddiy va kristall darajada tushunarli izoh</span>
+                      <span className="text-[11px] text-slate-400">2 ta qisqa va tushunarli jumla (Lotin alifbosida)</span>
                     </div>
                   </div>
                   <span className="text-xs font-mono text-cyan-400 px-2.5 py-1 rounded-md bg-cyan-950/40 border border-cyan-500/30">
@@ -1014,7 +1146,7 @@ export default function App() {
 
                 <div className="mt-4 pt-4 border-t border-slate-800">
                   <h3 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                    Asosiy Qoidalar:
+                    {lesson.subject} bo'yicha Asosiy Qoidalar:
                   </h3>
                   <ul className="space-y-1.5 text-xs sm:text-sm text-slate-300 font-mono">
                     {lesson.keyPoints.map((point, idx) => (
@@ -1036,9 +1168,9 @@ export default function App() {
                     </div>
                     <div>
                       <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-                        MERMAID.JS DIAGRAMMA
+                        MERMAID.JS DIAGRAMMA ({lesson.subject.toUpperCase()})
                       </h2>
-                      <span className="text-[11px] text-slate-400">Vizual oqim sxemasi (Flowchart)</span>
+                      <span className="text-[11px] text-slate-400">Mavzuga doir oqim sxemasi (Flowchart)</span>
                     </div>
                   </div>
                   <span className="text-xs font-mono text-cyan-400 px-2.5 py-1 rounded-md bg-cyan-950/40 border border-cyan-500/30">
@@ -1084,7 +1216,7 @@ export default function App() {
                       <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
                         COGNITIVE MIND: MINI-TEST
                       </h2>
-                      <span className="text-[11px] text-slate-400">O'quvchi diqqatini tekshirish</span>
+                      <span className="text-[11px] text-slate-400">{lesson.subject} fani diqqat sinovi</span>
                     </div>
                   </div>
                   <span className="text-xs font-mono text-emerald-400 px-2.5 py-1 rounded-md bg-emerald-950/40 border border-emerald-500/30">
@@ -1197,7 +1329,7 @@ export default function App() {
             </div>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Barcha yangi funksiyalar (Natural Uzbek TTS, Erkak/Ayol ovoz tanlash, 6 ta fanlar ro'yxati va GoPrep.gg uslubidagi interaktiv emotsional avatar) <code className="text-cyan-300 font-mono">public/voice_engine.html</code> fayliga to'liq jamlangan.
+              Barcha yangilanishlar (fanlar bo'yicha qat'iy cheklov, fon transliteratsiyasi va Lotin interfeysi) <code className="text-cyan-300 font-mono">public/voice_engine.html</code> fayliga jamlangan.
             </p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -1235,10 +1367,10 @@ export default function App() {
             <span className="text-slate-400 font-medium">OmniCore AI Ecosystem · 2-Modul</span>
           </div>
           <p className="font-mono text-slate-500">
-            Natural Uzbek TTS · Ustoz Jasur & Malika · 6 Multi-Subject · GoPrep.gg Cyber Avatar
+            Fanlar Cheklovi · Lotin Vizual UI · Kirill TTS Audio Fonetikasi · GoPrep.gg Cyber Avatar
           </p>
           <div className="text-slate-400">
-            Holat: <span className="text-emerald-400 font-medium">● Neural Voice Core Faol</span>
+            Holat: <span className="text-emerald-400 font-medium">● Dinamik Fan Tizimi Faol</span>
           </div>
         </div>
       </footer>

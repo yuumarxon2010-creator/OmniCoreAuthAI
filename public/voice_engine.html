@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OmniCore AI — Lecture & Voice Engine v2.0 (Natural Uzbek TTS & Cyber Avatar)</title>
-  <meta name="description" content="OmniCore AI Ecosystem: Natural Uzbek TTS, Voice Selector, Subject Categories va GoPrep.gg Uslubidagi Cyber Avatar" />
+  <title>OmniCore AI — Lecture & Voice Engine v2.0 (Strict Subjects & Natural Audio)</title>
+  <meta name="description" content="OmniCore AI Ecosystem: Fanlar Bo'yicha Qat'iy Cheklov, Fon Transliteratsiyasi va Cyber Avatar" />
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -64,7 +64,6 @@
     .radial-top-glow {
       background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12), transparent 70%);
     }
-    /* Mermaid diagram styling */
     .mermaid svg {
       max-width: 100% !important;
       height: auto !important;
@@ -107,7 +106,7 @@
 
       <!-- Zone 2: Navigation Links -->
       <nav class="hidden md:flex items-center gap-6 text-xs sm:text-sm font-medium text-slate-300">
-        <a href="#fanlar-tanlovi" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Fanlar Ro'yxati</a>
+        <a href="#fanlar-tanlovi" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Fanlar Bo'yicha Cheklov</a>
         <a href="#avatar-studiya" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Cyber Avatar</a>
         <a href="#ovoz-boshqaruvi" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Natural Uzbek TTS</a>
         <a href="#kognitiv-test" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Kognitiv Test</a>
@@ -126,21 +125,24 @@
   <!-- MAIN CONTAINER -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-    <!-- 1. MULTI-SUBJECT LIST (FANLAR RO'YXATI) -->
+    <!-- 1. MULTI-SUBJECT LIST (FANLAR BO'YICHA QAT'IY CHEKLOV) -->
     <section id="fanlar-tanlovi" class="cyber-card rounded-2xl p-5 relative">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-cyan-500/20">
         <div class="flex items-center gap-2">
           <span class="text-lg">🎓</span>
           <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
-            FANLAR RO'YXATI (MULTI-SUBJECT SYSTEM)
+            FANLAR BO'YICHA QAT'IY CHEKLOV VA MOSLASHUV
           </h2>
         </div>
-        <span class="text-xs text-slate-400 font-mono">
-          Tanlangan: <span id="activeSubjectLabel" class="text-cyan-300 font-bold">Fizika</span>
-        </span>
+        <div class="flex items-center gap-2 text-xs font-mono">
+          <span class="text-slate-400">Faol Fan:</span>
+          <span id="activeSubjectLabel" class="px-2.5 py-0.5 rounded-md bg-cyan-950 border border-cyan-500/50 text-cyan-300 font-bold">
+            Fizika
+          </span>
+        </div>
       </div>
 
-      <!-- Subject Pills -->
+      <!-- Subject Buttons -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5" id="subjectPillsContainer">
         <!-- Injected via JavaScript -->
       </div>
@@ -150,7 +152,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
       <!-- LEFT 5 COLS: INTERACTIVE AI CYBER AVATAR (GoPrep.gg Style) -->
-      <section id="avatar-studiya" class="lg:col-span-5 cyber-card-purple rounded-2xl p-6 relative">
+      <section id="avatar-studiya" class="lg:col-span-5 cyber-card-purple rounded-2xl p-6 relative overflow-hidden">
         <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-500/20">
           <div class="flex items-center gap-2">
             <span class="text-lg">🤖</span>
@@ -165,7 +167,7 @@
 
         <div class="flex flex-col items-center">
           
-          <!-- Speech Bubble -->
+          <!-- Speech Bubble (STRICTLY LATIN TEXT ON SCREEN) -->
           <div id="avatarSpeechBubble" class="w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed bg-[#0a0f1d] border-slate-800 text-slate-300">
             <div class="flex items-start gap-2">
               <span id="avatarPersonaIcon" class="text-base shrink-0">👨</span>
@@ -176,7 +178,7 @@
             </div>
           </div>
 
-          <!-- Expressive GoPrep.gg Cyber Avatar Container -->
+          <!-- Expressive GoPrep.gg Cyber Avatar -->
           <div id="avatarCircle" class="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-slate-900 via-indigo-950/40 to-[#070a12] ring-2 ring-slate-700/60">
             <svg id="avatarSvg" viewBox="0 0 100 100" class="w-full h-full drop-shadow-md select-none">
               <defs>
@@ -186,12 +188,10 @@
                 </linearGradient>
               </defs>
 
-              <!-- Chassis -->
               <rect id="avatarHead" x="24" y="20" width="52" height="64" rx="26" fill="url(#cyberHeadGrad)" stroke="#06b6d4" stroke-width="1.8" />
               <path d="M 38,82 L 34,94 L 66,94 L 62,82 Z" fill="#0d1424" stroke="#334155" stroke-width="1.5" />
               <line id="avatarCollar" x1="42" y1="88" x2="58" y2="88" stroke="#06b6d4" stroke-width="2" stroke-dasharray="2 2" />
 
-              <!-- Antennae -->
               <rect x="18" y="42" width="6" height="18" rx="3" fill="#0f172a" stroke="#06b6d4" stroke-width="1.2" />
               <rect x="76" y="42" width="6" height="18" rx="3" fill="#0f172a" stroke="#06b6d4" stroke-width="1.2" />
 
@@ -218,7 +218,7 @@
             </svg>
           </div>
 
-          <!-- Manual Emotion Tester -->
+          <!-- Emotion buttons -->
           <div class="flex items-center gap-1.5 mt-4 pt-3 border-t border-purple-500/20 w-full justify-center text-xs">
             <span class="text-slate-400 text-[11px] mr-1">Mimika:</span>
             <button onclick="setAvatarEmotion('happy')" class="px-2 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-300 text-[11px] transition">
@@ -244,22 +244,22 @@
         <!-- Topic Generator Input -->
         <div class="cyber-card rounded-2xl p-6 relative">
           <div class="flex items-center justify-between mb-4 pb-2 border-b border-cyan-500/20">
-            <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
-              ⚡ DARS GENERATORI VA MAVZU
+            <h2 class="text-sm sm:text-base font-bold text-white tracking-wide" id="generatorCardTitle">
+              ⚡ DARS GENERATORI (FIZIKA)
             </h2>
             <span id="activeTopicBadgeMini" class="text-xs font-mono text-cyan-400">Fizika</span>
           </div>
 
           <div class="space-y-3">
-            <label for="topicInput" class="block text-xs font-semibold text-slate-300">
+            <label for="topicInput" class="block text-xs font-semibold text-slate-300" id="topicInputLabel">
               MAVZU NOMINI KIRITING:
             </label>
             <div class="flex flex-col sm:flex-row gap-2.5">
               <input 
                 id="topicInput" 
                 type="text" 
-                value="Fizika - Gravitatsiya qonuni" 
-                placeholder="Masalan: Fizika - Gravitatsiya qonuni"
+                value="Fizika - Butunjahon Gravitatsiya Qonuni" 
+                placeholder="Mavzuni kiriting..."
                 class="flex-1 bg-[#0a0f1d] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
               />
               <button 
@@ -284,7 +284,10 @@
             <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
               🎙️ NATURAL UZBEK TTS & OVOZ SOZLAMALARI
             </h2>
-            <span class="text-xs font-mono text-purple-400">uz-UZ Audio Core</span>
+            <div class="flex items-center gap-1.5 text-[11px] font-mono text-emerald-400">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Lotin -> Kirill TTS Faol</span>
+            </div>
           </div>
 
           <div class="space-y-4">
@@ -336,7 +339,7 @@
                   Google TTS (Tabiiy)
                 </button>
                 <button id="btnEngineWeb" onclick="setAudioEngine('web_speech')" class="px-2.5 py-1 text-[11px] font-semibold rounded-md text-slate-400 hover:text-white transition">
-                  Web Speech
+                  Web Speech (Lokal)
                 </button>
               </div>
             </div>
@@ -381,6 +384,11 @@
               </button>
             </div>
 
+            <div class="p-2.5 rounded-lg bg-[#070a12]/80 border border-cyan-500/20 text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Vizual matn: <strong class="text-white">To'liq Lotin alifbosi</strong></span>
+              <span class="text-cyan-300 font-mono">Audio sintez: Kirill fonetik o'girish</span>
+            </div>
+
           </div>
         </div>
 
@@ -401,19 +409,20 @@
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
               <div class="flex items-center gap-2">
                 <span class="text-lg">📖</span>
-                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
-                  SODDA TUSHUNTIRISH (2 Jumlada)
+                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide" id="block1Title">
+                  SODDA TUSHUNTIRISH (FIZIKA)
                 </h2>
               </div>
               <span class="text-xs font-mono text-cyan-400">BLOK 01</span>
             </div>
 
+            <!-- Latin on screen -->
             <div id="explanationBox" class="p-4 rounded-xl bg-[#090e1c] border border-cyan-500/20 text-slate-100 text-base sm:text-lg leading-relaxed">
               Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.
             </div>
 
             <div class="mt-4 pt-4 border-t border-slate-800">
-              <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Asosiy Qoidalar:</h3>
+              <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2" id="keyPointsHeader">Asosiy Qoidalar:</h3>
               <ul id="keyPointsList" class="space-y-1.5 text-xs sm:text-sm text-slate-300 font-mono">
                 <!-- Injected via JS -->
               </ul>
@@ -425,8 +434,8 @@
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
               <div class="flex items-center gap-2">
                 <span class="text-lg">📊</span>
-                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
-                  MERMAID.JS DIAGRAMMA (Flowchart)
+                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide" id="block2Title">
+                  MERMAID.JS DIAGRAMMA (FIZIKA)
                 </h2>
               </div>
               <span class="text-xs font-mono text-cyan-400">BLOK 02</span>
@@ -447,15 +456,15 @@
 
         </div>
 
-        <!-- RIGHT 5 COLS: COGNITIVE MINI-TEST (WITH AVATAR EMOTION INTEGRATION) -->
+        <!-- RIGHT 5 COLS: COGNITIVE MINI-TEST -->
         <div class="lg:col-span-5 space-y-8">
           
           <div id="kognitiv-test" class="cyber-card rounded-2xl p-6 relative">
             <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
               <div class="flex items-center gap-2">
                 <span class="text-lg">🎯</span>
-                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
-                  COGNITIVE MIND: MINI-TEST
+                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide" id="quizHeaderTitle">
+                  COGNITIVE MIND: MINI-TEST (FIZIKA)
                 </h2>
               </div>
               <span class="text-xs font-mono text-cyan-400">DIQQAT SINOVI</span>
@@ -463,11 +472,11 @@
 
             <div class="space-y-4">
               <p id="quizQuestion" class="text-sm sm:text-base font-semibold text-white leading-relaxed">
-                <!-- Question -->
+                <!-- Question in Latin -->
               </p>
 
               <div id="quizOptionsContainer" class="space-y-2">
-                <!-- 3 Options -->
+                <!-- 3 Options in Latin -->
               </div>
 
               <div id="quizResultBanner" class="hidden p-4 rounded-xl border text-xs sm:text-sm font-medium transition-all"></div>
@@ -489,7 +498,7 @@
         <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></span>
         <span class="text-slate-400 font-medium">OmniCore AI Ecosystem · 2-Modul</span>
       </div>
-      <p class="font-mono text-slate-500">Natural Uzbek TTS · Ustoz Jasur & Malika · 6 Multi-Subject · GoPrep.gg Cyber Avatar</p>
+      <p class="font-mono text-slate-500">Fanlar Cheklovi · Lotin UI · Kirill TTS Audio Fonetikasi · GoPrep.gg Cyber Avatar</p>
       <div class="text-slate-400">
         Holat: <span class="text-emerald-400">● Tizim Faol</span>
       </div>
@@ -498,6 +507,63 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    // Transliterate Uzbek Latin to Cyrillic for background TTS engines
+    function latinToCyrillicUzbek(input) {
+      if (!input) return '';
+      let text = input;
+
+      text = text.replace(/O['ʻ‘`’]/g, 'Ў');
+      text = text.replace(/o['ʻ‘`’]/g, 'ў');
+      text = text.replace(/G['ʻ‘`’]/g, 'Ғ');
+      text = text.replace(/g['ʻ‘`’]/g, 'ғ');
+
+      text = text.replace(/SH/g, 'Ш');
+      text = text.replace(/Sh/g, 'Ш');
+      text = text.replace(/sh/g, 'ш');
+
+      text = text.replace(/CH/g, 'Ч');
+      text = text.replace(/Ch/g, 'Ч');
+      text = text.replace(/ch/g, 'ч');
+
+      text = text.replace(/YO/g, 'Ё');
+      text = text.replace(/Yo/g, 'Ё');
+      text = text.replace(/yo/g, 'ё');
+
+      text = text.replace(/YU/g, 'Ю');
+      text = text.replace(/Yu/g, 'Ю');
+      text = text.replace(/yu/g, 'ю');
+
+      text = text.replace(/YA/g, 'Я');
+      text = text.replace(/Ya/g, 'Я');
+      text = text.replace(/ya/g, 'я');
+
+      text = text.replace(/TS/g, 'Ц');
+      text = text.replace(/Ts/g, 'Ц');
+      text = text.replace(/ts/g, 'ц');
+
+      text = text.replace(/(^|[\s\p{P}])Ye/gu, '$1Е');
+      text = text.replace(/(^|[\s\p{P}])ye/gu, '$1е');
+      text = text.replace(/([AEIOUaeiouЎў])Ye/g, '$1Е');
+      text = text.replace(/([AEIOUaeiouЎў])ye/g, '$1е');
+
+      text = text.replace(/(^|[\s\p{P}])E/gu, '$1Э');
+      text = text.replace(/(^|[\s\p{P}])e/gu, '$1э');
+
+      const charMap = {
+        'A': 'А', 'a': 'а', 'B': 'Б', 'b': 'б', 'D': 'Д', 'd': 'д',
+        'E': 'Е', 'e': 'е', 'F': 'Ф', 'f': 'ф', 'G': 'Г', 'g': 'г',
+        'H': 'Ҳ', 'h': 'ҳ', 'I': 'И', 'i': 'и', 'J': 'Ж', 'j': 'ж',
+        'K': 'К', 'k': 'к', 'L': 'Л', 'l': 'л', 'M': 'М', 'm': 'м',
+        'N': 'Н', 'n': 'н', 'O': 'О', 'o': 'о', 'P': 'П', 'p': 'п',
+        'Q': 'Қ', 'q': 'қ', 'R': 'Р', 'r': 'р', 'S': 'С', 's': 'с',
+        'T': 'Т', 't': 'т', 'U': 'У', 'u': 'у', 'V': 'В', 'v': 'в',
+        'X': 'Х', 'x': 'х', 'Y': 'Й', 'y': 'й', 'Z': 'З', 'z': 'з',
+        "'": 'ъ', "ʻ": 'ъ', "’": 'ъ', "‘": 'ъ', "`": 'ъ'
+      };
+
+      return text.split('').map(char => charMap[char] || char).join('');
+    }
+
     mermaid.initialize({
       startOnLoad: false,
       theme: 'dark',
@@ -514,35 +580,164 @@
     });
 
     const SUBJECTS = {
-      'Informatika/AI': {
-        icon: '💻',
-        defaultTopic: 'Informatika - Sun\'iy Neyron Tarmoqlari',
-        topics: ['Neyron Tarmoqlari', 'Blokcheyn Texnologiyasi', 'Algoritmlar Murakkabligi', 'Kiberxavfsizlik']
+      'Ingliz Tili': {
+        icon: '🇬🇧',
+        defaultTopic: 'Ingliz Tili - Present Perfect Tense va Natijaviylik',
+        topics: ['Present Perfect Tense', 'Second Conditional', 'Passive Voice', 'IELTS Speaking Idioms']
       },
       'Matematika': {
         icon: '📐',
         defaultTopic: 'Matematika - Pifagor Teoremasi va Geometriya',
-        topics: ['Pifagor Teoremasi', 'Ehtimollar Nazariyasi', 'Hosila va Integral', 'Matritsalar']
+        topics: ['Pifagor Teoremasi', 'Ehtimollar Nazariyasi', 'Hosila va Integral', 'Matritsalar va Determinant']
       },
       'Fizika': {
         icon: '⚛️',
-        defaultTopic: 'Fizika - Gravitatsiya Qonuni',
-        topics: ['Gravitatsiya Qonuni', 'Kvant Superpozitsiyasi', 'Termodinamika', 'Nisbiylik Nazariyasi']
+        defaultTopic: 'Fizika - Butunjahon Gravitatsiya Qonuni',
+        topics: ['Gravitatsiya Qonuni', 'Kvant Superpozitsiyasi', 'Termodinamika va Entropiya', 'Nisbiylik Nazariyasi']
       },
       'Kimyo': {
         icon: '🧪',
         defaultTopic: 'Kimyo - Mendeleyev Davriy Qonuni va Atom',
-        topics: ['Mendeleyev Qonuni', 'Kovalent Bog\'lanish', 'Kislota va Asoslar', 'Elektroliz']
+        topics: ['Mendeleyev Qonuni', 'Kovalent Bog\'lanish', 'Kislota va Asoslar', 'Elektroliz Jarayoni']
       },
       'Tarix': {
         icon: '🏛️',
         defaultTopic: 'Tarix - Amir Temur va Markazlashgan Davlat',
-        topics: ['Amir Temur Saltanati', 'Buyuk Ipak Yo\'li', 'Temuriylar Renessansi', 'Qadimgi Bobil']
+        topics: ['Amir Temur Saltanati', 'Buyuk Ipak Yo\'li', 'Temuriylar Renessansi', 'Qadimgi Bobil Qonunlari']
       },
+      'Informatika/AI': {
+        icon: '💻',
+        defaultTopic: 'Informatika - Sun\'iy Neyron Tarmoqlari',
+        topics: ['Neyron Tarmoqlari', 'Blokcheyn Texnologiyasi', 'Algoritmlar Murakkabligi', 'Kiberxavfsizlik Asoslari']
+      }
+    };
+
+    const SUBJECT_PRESETS = {
       'Ingliz Tili': {
-        icon: '🇬🇧',
-        defaultTopic: 'Ingliz Tili - Present Perfect Tense va Natijaviylik',
-        topics: ['Present Perfect Tense', 'Conditional Sentences', 'Passive Voice', 'Phrasal Verbs']
+        topic: 'Ingliz Tili: Present Perfect Tense va Natijaviylik',
+        category: 'Ingliz Tili Grammatikasi',
+        subject: 'Ingliz Tili',
+        simpleExplanation: "Present Perfect zamoni (have/has + V3) o'tmishda sodir bo'lgan, ammo natijasi aynan hozirgi lahzada ko'rinib turgan harakatlar uchun ishlatiladi. Masalan, \"I have lost my key\" jumlasi kalitning o'tmishda yo'qolgani va hozir ham uyga kira olmaslik natijasini bildiradi.",
+        mermaidDiagram: `graph LR\n  A[O'tmishdagi Harakat Past Action] -->|have / has + V3| B[Hozirgi Natija Present Result]\n  B --> C[Tajriba yoki Hozirgi Holat]\n  C --> D[Signal so'zlar: already, just, yet, ever]`,
+        speechScript: "Present Perfect zamoni o'tmishdagi harakatning hozirgi paytga bog'liq natijasini ko'rsatadi. Have yoki has yordamchi fe'li va fe'lning uchinchi shakli orqali yasaladi.",
+        quiz: {
+          question: "«She ______ already finished her homework.» bo'sh o'ringa to'g'ri yordamchi fe'lni qo'ying:",
+          options: ["has", "have", "is"],
+          correctIndex: 0,
+          explanation: "Ingliz tilida 3-shaxs birlik (He, She, It) uchun Present Perfect da faqat «has» yordamchi fe'li qo'llaniladi."
+        },
+        keyPoints: [
+          "Formula: Subject + have/has + Past Participle (V3)",
+          "Past Simple o'tgan vaqtni (yesterday), Present Perfect esa hozirgi natijani ta'kidlaydi",
+          "Signal so'zlar: already, just, never, ever, yet, recently"
+        ],
+        strictFeedback: "Diqqatsizlik! «She» olmoshidan keyin «have» emas, «has» yordamchi fe'li qo'yiladi!",
+        happyFeedback: "Excellent! Siz 3-shaxs birlik uchun «has» fe'li qoidasini a'lo darajada bilasiz!"
+      },
+      'Matematika': {
+        topic: 'Matematika: Pifagor Teoremasi va Geometriya',
+        category: 'Geometriya',
+        subject: 'Matematika',
+        simpleExplanation: "Pifagor teoremasiga ko'ra, to'g'ri burchakli uchburchakda gipotenuza kvadratining qiymati katetlar kvadratlarining yig'indisiga doimo teng bo'ladi. Ushbu teorema barcha fazoviy masofalarni va vektor uzunliklarini aniqlashda poydevor hisoblanadi.",
+        mermaidDiagram: `graph TD\n  A[To'g'ri Burchakli Uchburchak] --> B[Katet a va Katet b]\n  B --> C[Katetlar Kvadratlari: a² + b²]\n  C --> D[Gipotenuza Kvadrati c²]\n  D --> E[Masofa va Vektor Formulalari]`,
+        speechScript: "Pifagor teoremasi to'g'ri burchakli uchburchakda gipotenuza kvadrati katetlar kvadratlarining yig'indisiga teng ekanligini ta'kidlaydi. Bu geometriya va fazoviy koordinatalarning asosidir.",
+        quiz: {
+          question: "To'g'ri burchakli uchburchakning katetlari 3 va 4 ga teng bo'lsa, gipotenuzasi nechaga teng bo'ladi?",
+          options: ["5", "6", "7"],
+          correctIndex: 0,
+          explanation: "Pifagor teoremasi bo'yicha: c² = 3² + 4² = 9 + 16 = 25. Demak, c = √25 = 5 (Misr uchburchagi)."
+        },
+        keyPoints: [
+          "Klassik formula: a² + b² = c²",
+          "Teskari Pifagor teoremasi burchakning 90° ekanligini isbotlashda qo'llaniladi",
+          "Fazoviy 3D masofa: d = √(x² + y² + z²)"
+        ],
+        strictFeedback: "Hisoblashda adashdingiz! 3² + 4² = 9 + 16 = 25, uning kvadrat ildizi esa 5 bo'ladi!",
+        happyFeedback: "Ofarin! Qadimgi Misr uchburchagi qoidasini a'lo darajada bilasiz!"
+      },
+      'Fizika': {
+        topic: 'Fizika: Butunjahon Gravitatsiya Qonuni',
+        category: 'Klassik Mexanika',
+        subject: 'Fizika',
+        simpleExplanation: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.",
+        mermaidDiagram: `graph TD\n  A[Massaga ega jism M1] -->|Gravitatsiya kuchi F| C[O'zaro tortishish markazi]\n  B[Massaga ega jism M2] -->|Gravitatsiya kuchi F| C\n  C --> D[Masofa kvadrati R² ga teskari proportsional]\n  D --> E[Sayyoralar orbital harakati]`,
+        speechScript: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning tortishish kuchi shunchalik kuchli bo'ladi.",
+        quiz: {
+          question: "Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o'zgaradi?",
+          options: ["2 barobar kamayadi", "4 barobar kamayadi", "2 barobar ortadi"],
+          correctIndex: 1,
+          explanation: "Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/R²). Shu bois masofa 2 marta ortganda, kuch 4 barobar kamayadi!"
+        },
+        keyPoints: [
+          "Nyuton butunjahon tortishish formulasi: F = G · (m₁ · m₂) / r²",
+          "Gravitatsiya doimiysi: G ≈ 6.674 × 10⁻¹¹ N·m²/kg²",
+          "Sayyoralar Quyosh atrofida ellips orbitalar bo'ylab harakatlanadi"
+        ],
+        strictFeedback: "Diqqat! Masofa kvadratiga e'tibor bermadingiz. F = G·m1·m2/r² formulasini qayta ko'rib chiqing!",
+        happyFeedback: "Ajoyib! Siz Nyutonning teskari kvadratlar qonunini to'g'ri tushundingiz!"
+      },
+      'Kimyo': {
+        topic: 'Kimyo: Mendeleyev Davriy Qonuni va Atom Tuzilishi',
+        category: 'Anorganik Kimyo',
+        subject: 'Kimyo',
+        simpleExplanation: "Mendeleyev davriy qonuniga ko'ra, kimyoviy elementlarning xossalari ularning atom yadrosi zaryadiga (protonlar soniga) davriy ravishda bog'liqdir. Tashqi elektron qobig'idagi elektronlar soni elementning qanday reaksiyaga kirishishini belgilab beradi.",
+        mermaidDiagram: `graph TD\n  A[Atom Yadrosi: Protonlar Z] --> B[Davriy Jadvaldagi Tartib Raqami]\n  B --> C[Elektron Qobiqlar Pog'onasi]\n  C --> D[Valent Elektronlar]\n  D --> E[Elementning Kimyoviy Xossalari]`,
+        speechScript: "Mendeleyev davriy qonuniga ko'ra, elementlarning xossalari ularning yadro zaryadiga davriy bog'liqdir. Tashqi qobiqdagi valent elektronlar elementlarning xulq-atvorini belgilaydi.",
+        quiz: {
+          question: "Atomning kimyoviy xossalarini va uning davriy jadvaldagi o'rnini asosan nima belgilaydi?",
+          options: ["Yadrodagi neytronlar soni", "Yadrodagi protonlar soni (yadro zaryadi)", "Moddaning umumiy og'irligi"],
+          correctIndex: 1,
+          explanation: "Davriy qonunning zamonaviy ta'rifi aynan yadro zaryadi (protonlar soni Z) ga tayanadi."
+        },
+        keyPoints: [
+          "Zaryad soni Z = Protonlar soni = Neytral atomdagi elektronlar soni",
+          "Guruh raqami tashqi valent elektronlar sonini ko'rsatadi",
+          "Davr raqami elektron qavatlarning umumiy soniga teng"
+        ],
+        strictFeedback: "Diqqat qiling! Neytronlar izotoplarni hosil qiladi, elementning xossalarini esa yadro zaryadi belgilaydi!",
+        happyFeedback: "Juda to'g'ri! Yadro zaryadi davriy qonunning eng asosiy fundamentidir!"
+      },
+      'Tarix': {
+        topic: 'Tarix: Amir Temur va Markazlashgan Davlat Boshqaruvi',
+        category: 'O\'zbekiston Tarixi',
+        subject: 'Tarix',
+        simpleExplanation: "Sohibqiron Amir Temur tarqoq feodal bekliklarni birlashtirib, qudratli markazlashgan davlat va qonun ustuvorligiga asoslangan adolat tizimini barpo etdi. Uning «Kuch — adolatdadir» shiori Buyuk Ipak yo'lida xavfsizlik va Temuriylar Renessansiga yo'l ochdi.",
+        mermaidDiagram: `graph TD\n  A[Tarqoq bekliklar birlashuvi] --> B[Markazlashgan Quvvatli Davlat]\n  B --> C[Temur Tuzuklari: Adolat va Qonun]\n  C --> D[Buyuk Ipak Yo'li Xavfsizligi]\n  D --> E[Ilm-fan va Temuriylar Renessansi]`,
+        speechScript: "Amir Temur tarqoq bekliklarni birlashtirib, qudratli davlat va adolat tizimini yaratdi. Uning Kuch adolatdadir shiori Buyuk Ipak yo'lida xavfsizlik va ilm-fan taraqqiyotini ta'minladi.",
+        quiz: {
+          question: "Amir Temur davlat boshqaruvida qaysi shiorni o'zining bosh strategik mezoni qilib olgan?",
+          options: ["Kuch — adolatdadir", "Tinchlik — boylikdadir", "G'alaba — kuchdadir"],
+          correctIndex: 0,
+          explanation: "Amir Temurning davlat muhri va uzugida «Rosti-rusti» (Kuch — adolatdadir) shiori zarb etilgan bo'lib, u butun saltanat qonunlarining o'zagi bo'lgan."
+        },
+        keyPoints: [
+          "«Temur tuzuklari» — davlat boshqaruvi va harbiy san'atning noyob qomusidir",
+          "Markazlashgan savdo yo'llari Sharq va G'arb madaniyatlarini bog'lagan",
+          "Samarqand shahrida jahon miqyosidagi me'moriy obidalar qad ko'tardi"
+        ],
+        strictFeedback: "Tarixiy manbalarni unutdingiz! Sohibqiron Amir Temurning bosh g'oyasi aynan «Kuch — adolatdadir» bo'lgan!",
+        happyFeedback: "Tasanno! Buyuk Sohibqironning o'lmas adolat shiorini to'g'ri esladingiz!"
+      },
+      'Informatika/AI': {
+        topic: 'Informatika: Sun\'iy Neyron Tarmoqlari',
+        category: 'Sun\'iy Intellekt',
+        subject: 'Informatika/AI',
+        simpleExplanation: "Sun'iy neyron tarmoqlari — inson miyasi biologik neyronlari ishlash prinsipiga taqlid qiluvchi matematik hisoblash algoritmidir. Ular kiruvchi ma'lumotlarni ko'p qatlamli vaznlar va aktivatsiya funksiyalari orqali qayta ishlab, murakkab qonuniyatlarni mustaqil taniy oladi.",
+        mermaidDiagram: `graph LR\n  A[Kirish Qatlami x] -->|Vaznlar W| B[Yashirin Qatlam Neyronlari]\n  B -->|Aktivatsiya ReLU| C[Chiqish Qatlami y]\n  C -->|Xatolik Hisobi| D[Backpropagation & Gradient]\n  D -.->|Vaznlarni yangilash| B`,
+        speechScript: "Sun'iy neyron tarmoqlari inson miyasi tuzilishiga taqlid qiluvchi algoritmlardir. Ular qatlamlar orqali ma'lumotlarni tahlil qilib, xatolarni kamaytirish orqali mukammallashadi.",
+        quiz: {
+          question: "Neyron tarmog'ini o'qitishda chiqishdagi xatolikni orqaga tarqatib vaznlarni yangilash algoritmi qanday ataladi?",
+          options: ["Backpropagation (Orqaga tarqalish)", "Overfitting (Qayta moslashish)", "Data Augmentation"],
+          correctIndex: 0,
+          explanation: "Backpropagation algoritmi xatolik gradientini hisoblab, tarmoqdagi barcha vaznlarni teskari tartibda aniq yangilaydi."
+        },
+        keyPoints: [
+          "Neyron matematik modeli: y = f(∑(w_i * x_i) + b)",
+          "Aktivatsiya funksiyalari (ReLU, GELU) chiziqsiz murakkab bog'liqliklarni o'rgatadi",
+          "Chuqur o'rganish (Deep Learning) — ko'p sonli yashirin qatlamlarga asoslanadi"
+        ],
+        strictFeedback: "Xato! Overfitting bu xatolikni tarqatish emas, balki tarmoqning haddan tashqari yodlab olish kasalligidir!",
+        happyFeedback: "Mukammal! Siz mashinali o'rganishning eng muhim ustuni bo'lgan Backpropagation algoritmini to'g'ri tanladingiz!"
       }
     };
 
@@ -556,29 +751,8 @@
     let currentAudioObj = null;
     let mouthInterval = null;
 
-    let currentLesson = {
-      topic: 'Fizika: Butunjahon Gravitatsiya Qonuni',
-      category: 'Fizika',
-      subject: 'Fizika',
-      simpleExplanation: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.",
-      mermaidDiagram: `graph TD\n  A[Massaga ega jism M1] -->|Gravitatsiya kuchi F| C[O'zaro tortishish markazi]\n  B[Massaga ega jism M2] -->|Gravitatsiya kuchi F| C\n  C --> D[Masofa kvadrati R² ga teskari proportsional]\n  D --> E[Sayyoralar orbital harakati]`,
-      speechScript: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning tortishish kuchi shunchalik kuchli bo'ladi.",
-      quiz: {
-        question: "Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o'zgaradi?",
-        options: ["2 barobar kamayadi", "4 barobar kamayadi", "2 barobar ortadi"],
-        correctIndex: 1,
-        explanation: "Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/R²). Shu bois masofa 2 marta ortganda, kuch 4 barobar kamayadi!"
-      },
-      keyPoints: [
-        "Nyuton butunjahon tortishish formulasi: F = G · (m₁ · m₂) / r²",
-        "Gravitatsiya doimiysi: G ≈ 6.674 × 10⁻¹¹ N·m²/kg²",
-        "Sayyoralar Quyosh atrofida ellips orbitalar bo'ylab harakatlanadi"
-      ],
-      strictFeedback: "Diqqat! Masofa kvadratiga e'tibor bermadingiz. F = G·m1·m2/r² formulasini qayta ko'rib chiqing!",
-      happyFeedback: "Ajoyib! Siz Nyutonning teskari kvadratlar qonunini to'g'ri tushundingiz!"
-    };
+    let currentLesson = SUBJECT_PRESETS['Fizika'];
 
-    // Render Subject Selector Pills
     function renderSubjectPills() {
       const container = document.getElementById('subjectPillsContainer');
       container.innerHTML = '';
@@ -596,10 +770,14 @@
 
       document.getElementById('activeSubjectLabel').innerText = activeSubject;
       document.getElementById('activeTopicBadgeMini').innerText = activeSubject;
+      document.getElementById('generatorCardTitle').innerText = `⚡ DARS GENERATORI (${activeSubject.toUpperCase()})`;
+      document.getElementById('topicInputLabel').innerText = `${activeSubject.toUpperCase()} MAVZUSINI KIRITING:`;
+      document.getElementById('block1Title').innerText = `SODDA TUSHUNTIRISH (${activeSubject.toUpperCase()})`;
+      document.getElementById('block2Title').innerText = `MERMAID.JS DIAGRAMMA (${activeSubject.toUpperCase()})`;
+      document.getElementById('quizHeaderTitle').innerText = `COGNITIVE MIND: MINI-TEST (${activeSubject.toUpperCase()})`;
 
-      // Recommended topics
       const recContainer = document.getElementById('recommendedTopics');
-      recContainer.innerHTML = '<span class="font-medium text-slate-400">Tavsiya mavzular:</span>';
+      recContainer.innerHTML = `<span class="font-medium text-slate-400">${activeSubject} mavzulari:</span>`;
       SUBJECTS[activeSubject].topics.forEach(t => {
         const b = document.createElement('button');
         b.className = 'px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-cyan-300 border border-slate-700 transition cursor-pointer';
@@ -614,12 +792,15 @@
 
     function selectSubject(subj) {
       activeSubject = subj;
+      // Immediately load that subject's preset so it never stays on Gravitatsiya!
+      currentLesson = SUBJECT_PRESETS[subj] || SUBJECT_PRESETS['Fizika'];
       document.getElementById('topicInput').value = SUBJECTS[subj].defaultTopic;
+      
       renderSubjectPills();
+      renderLessonUI();
       handleGenerateLesson();
     }
 
-    // Voice Persona & Engine Switches
     function setVoicePersona(persona) {
       activeVoicePersona = persona;
       const btnJ = document.getElementById('voiceBtnJasur');
@@ -656,11 +837,10 @@
       } else {
         btnW.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-purple-600 text-white transition';
         btnG.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md text-slate-400 hover:text-white transition';
-        desc.innerText = 'Web Speech API (Brauzer mahalliy sintezi)';
+        desc.innerText = 'Web Speech API (Lotin -> Kirill fonetik o\'girish bilan)';
       }
     }
 
-    // GoPrep.gg Style Avatar Emotion Switcher
     function setAvatarEmotion(mood, customMsg) {
       avatarMood = mood;
       const circle = document.getElementById('avatarCircle');
@@ -677,7 +857,6 @@
       if (customMsg) bubbleText.innerText = customMsg;
 
       if (mood === 'strict') {
-        // GoPrep.gg Angry / Strict Furrowed Brows
         circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-rose-950/80 via-red-900/40 to-[#070a12] ring-4 ring-rose-500/50 shadow-[0_0_35px_rgba(244,63,94,0.4)]';
         badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-rose-950/80 border-rose-500 text-rose-300 animate-pulse';
         badge.innerText = '⚠️ JAHL / JIDDIY';
@@ -700,7 +879,6 @@
         `;
         mouth.innerHTML = `<path d="M 38,72 Q 50,67 62,72" stroke="#f43f5e" stroke-width="2.8" stroke-linecap="round" fill="none" />`;
       } else if (mood === 'happy') {
-        // Happy Smiling Mimic
         circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-emerald-950/80 via-teal-900/40 to-[#070a12] ring-4 ring-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.4)]';
         badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-emerald-950/80 border-emerald-500 text-emerald-300';
         badge.innerText = '✨ TABASSUM / MAMNUN';
@@ -720,7 +898,6 @@
         `;
         mouth.innerHTML = `<path d="M 36,68 Q 50,84 64,68 Z" fill="#064e3b" stroke="#10b981" stroke-width="2" />`;
       } else if (mood === 'speaking') {
-        // Speaking Lip-Sync
         circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-cyan-950/80 via-blue-900/40 to-[#070a12] ring-4 ring-cyan-500/50 shadow-[0_0_35px_rgba(6,182,212,0.4)]';
         badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-cyan-950/80 border-cyan-500 text-cyan-300';
         badge.innerText = '🗣️ O\'QIMOQDA';
@@ -751,7 +928,6 @@
           }, 140);
         }
       } else {
-        // Idle
         if (mouthInterval) { clearInterval(mouthInterval); mouthInterval = null; }
         circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-slate-900 via-indigo-950/40 to-[#070a12] ring-2 ring-slate-700/60';
         badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-slate-900 border-slate-700 text-slate-400';
@@ -776,8 +952,8 @@
       }
     }
 
-    // Render Current Lesson
     function renderLessonUI() {
+      // 1. All UI texts remain in Latin!
       document.getElementById('explanationBox').innerText = currentLesson.simpleExplanation;
       
       const kpList = document.getElementById('keyPointsList');
@@ -832,47 +1008,48 @@
       document.getElementById('diagramCodeBlock').classList.toggle('hidden');
     }
 
-    // Audio Playback: Google TTS vs Web Speech API
+    // Audio Playback with Latin -> Cyrillic phonetic transliteration for SpeechSynthesis / Google TTS
     function speakLesson(customText) {
       stopAudio();
 
-      const text = customText || currentLesson.speechScript || currentLesson.simpleExplanation;
-      setAvatarEmotion('speaking', text);
+      // UI text stays 100% Latin
+      const latinText = customText || currentLesson.speechScript || currentLesson.simpleExplanation;
+      setAvatarEmotion('speaking', latinText);
       isSpeaking = true;
       document.getElementById('mainAudioIcon').innerText = '⏹';
       document.getElementById('mainAudioText').innerText = "To'xtatish";
+
+      // Background audio text converts to Cyrillic for authentic native pronunciation
+      const cyrillicText = latinToCyrillicUzbek(latinText);
 
       const speed = parseFloat(document.getElementById('rateSlider').value) || 1.0;
       const pitch = parseFloat(document.getElementById('pitchSlider').value) || 1.0;
       const vol = parseFloat(document.getElementById('volSlider').value) || 1.0;
 
       if (activeAudioEngine === 'google_natural') {
-        const url = `/api/tts?text=${encodeURIComponent(text)}&voice=${activeVoicePersona}&t=${Date.now()}`;
+        const url = `/api/tts?text=${encodeURIComponent(cyrillicText)}&voice=${activeVoicePersona}&t=${Date.now()}`;
         const audio = new Audio(url);
         audio.playbackRate = speed;
         audio.volume = vol;
 
-        audio.onended = () => {
-          stopAudio();
-        };
-        audio.onerror = () => {
-          fallbackWebSpeech(text, speed, pitch, vol);
-        };
+        audio.onended = () => stopAudio();
+        audio.onerror = () => fallbackWebSpeech(cyrillicText, speed, pitch, vol);
 
         currentAudioObj = audio;
-        audio.play().catch(() => fallbackWebSpeech(text, speed, pitch, vol));
+        audio.play().catch(() => fallbackWebSpeech(cyrillicText, speed, pitch, vol));
       } else {
-        fallbackWebSpeech(text, speed, pitch, vol);
+        fallbackWebSpeech(cyrillicText, speed, pitch, vol);
       }
     }
 
-    function fallbackWebSpeech(text, speed, pitch, vol) {
+    function fallbackWebSpeech(cyrillicText, speed, pitch, vol) {
       if (!('speechSynthesis' in window)) {
         stopAudio();
         return;
       }
       window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
+      // Transliterated Cyrillic string sent to speech engine
+      const u = new SpeechSynthesisUtterance(cyrillicText);
       const voices = window.speechSynthesis.getVoices();
       const uzVoice = voices.find(v => v.lang.toLowerCase().includes('uz'));
       if (uzVoice) u.voice = uzVoice;
@@ -906,7 +1083,6 @@
       setAvatarEmotion('idle');
     }
 
-    // Generate Lesson
     async function handleGenerateLesson() {
       const topic = document.getElementById('topicInput').value.trim();
       if (!topic) return;
@@ -927,10 +1103,12 @@
 
         if (response.ok) {
           const data = await response.json();
+          data.subject = activeSubject;
           currentLesson = data;
         }
       } catch (err) {
         console.warn('Fallback triggered', err);
+        currentLesson = SUBJECT_PRESETS[activeSubject] || SUBJECT_PRESETS['Fizika'];
       }
 
       renderLessonUI();
@@ -939,7 +1117,6 @@
       }, 500);
     }
 
-    // Quiz Selection with GoPrep.gg Mimic Reaction
     function selectQuizOption(idx) {
       if (quizAnswered) return;
       quizAnswered = true;
@@ -986,7 +1163,6 @@
           <p class="text-xs text-rose-300/90">${currentLesson.quiz.explanation}</p>
         `;
 
-        // Goprep.gg Angry / Strict Brow Mimic
         setAvatarEmotion('strict', currentLesson.strictFeedback || "Diqqatni jamlang! Bu joyda jiddiy xatoga yo'l qo'ydingiz!");
         setTimeout(() => speakLesson(currentLesson.strictFeedback || "Diqqatni jamlang! Jiddiy xato qildingiz!"), 300);
       }
