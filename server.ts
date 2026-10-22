@@ -16,7 +16,7 @@ const PORT = Number(process.env.PORT) || 3000;
 
 app.use(express.json());
 
-// Transliterate Uzbek Latin to Cyrillic for TTS audio engines
+// Transliterate Uzbek Latin to Cyrillic for background TTS engines
 export function latinToCyrillicUzbek(input: string): string {
   if (!input) return '';
   let text = input;
@@ -87,571 +87,375 @@ if (apiKey) {
   });
 }
 
+export type GradeLevel = '1-4' | '5-8' | '9-11';
+
+export interface QuizQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
 export interface LessonData {
   topic: string;
   category: string;
   subject: string;
+  gradeLevel: GradeLevel;
+  grade: number;
   simpleExplanation: string;
+  formulas: string[];
+  exampleProblem: {
+    problem: string;
+    stepByStepSolution: string;
+  };
+  closingQuestion: string; // Majburiy: "Mavzuni o'zlashtirib bo'ldingizmi? Mavzuga oid savol-javoblar qilamizmi keyingi mavzuga o'tishimiz uchun?"
   mermaidDiagram: string;
   speechScript: string;
-  quiz: {
-    question: string;
-    options: string[];
-    correctIndex: number;
-    explanation: string;
-  };
-  keyPoints: string[];
+  quizList: QuizQuestion[];
+  passingScorePercent: number; // 60
+  nextTopic: string;
+  reviewExplanation: string;
   strictFeedback: string;
   happyFeedback: string;
 }
 
-// Comprehensive Multi-Subject Knowledge Library
-const SUBJECT_PRESETS: Record<string, Record<string, LessonData>> = {
-  'Ingliz Tili': {
-    'present': {
-      topic: 'Ingliz Tili: Present Perfect Tense va Natijaviylik',
-      category: 'Ingliz Tili Grammatikasi',
-      subject: 'Ingliz Tili',
-      simpleExplanation: 'Present Perfect zamoni (have/has + V3) o\'tmishda boshlangan, ammo natijasi aynan hozirgi lahzada ko\'rinib turgan harakatlar uchun ishlatiladi. Masalan, "I have lost my key" jumlasi kalitning o\'tmishda yo\'qolgani va hozir ham uyga kira olmaslik natijasini bildiradi.',
-      mermaidDiagram: `graph LR
-      A[O'tmishdagi Harakat Past Action] -->|have / has + V3| B[Hozirgi Natija Present Result]
-      B --> C[Tajriba yoki Hozirgi Holat]
-      C --> D[Signal so'zlar: already, just, yet, ever]`,
-      speechScript: 'Present Perfect zamoni o\'tmishdagi harakatning hozirgi paytga bog\'liq natijasini ko\'rsatadi. Have yoki has yordamchi fe\'li va fe\'lning uchinchi shakli orqali yasaladi.',
-      quiz: {
-        question: '«She ______ already finished her homework.» bo\'sh o\'ringa to\'g\'ri yordamchi fe\'lni qo\'ying:',
-        options: ['has', 'have', 'is'],
-        correctIndex: 0,
-        explanation: 'Ingliz tilida 3-shaxs birlik (He, She, It) uchun Present Perfect da faqat «has» yordamchi fe\'li qo\'llaniladi.'
-      },
-      keyPoints: [
-        'Formula: Subject + have/has + Past Participle (V3)',
-        'Past Simple o\'tgan vaqtni (yesterday), Present Perfect esa hozirgi natijani ta\'kidlaydi',
-        'Signal so\'zlar: already, just, never, ever, yet, recently'
-      ],
-      strictFeedback: 'Diqqatsizlik! «She» olmoshidan keyin «have» emas, «has» yordamchi fe\'li qo\'yiladi!',
-      happyFeedback: 'Excellent! Siz 3-shaxs birlik uchun «has» fe\'li qoidasini a\'lo darajada bilasiz!'
-    },
-    'conditional': {
-      topic: 'Ingliz Tili: Second Conditional (Faraziy Shart Ergash Gaplar)',
-      category: 'Ingliz Tili Grammatikasi',
-      subject: 'Ingliz Tili',
-      simpleExplanation: 'Second Conditional hozirgi yoki kelasi zamondagi noreal, orzu-xayoliy yoki amalga oshishi qiyin bo\'lgan shartli holatlarni ifodalaydi. U «If + Past Simple, would + V1» qoidasi asosida yasaladi (Masalan: If I had a million dollars, I would travel the world).',
-      mermaidDiagram: `graph TD
-      A[Noreal Faraz: If + Past Simple] --> B[Natija qismi: would + V1]
-      B --> C[Hozirgi paytdagi xayoliy orzu]
-      C --> D[Misol: If I were you, I would study hard]`,
-      speechScript: 'Second Conditional hozirgi paytdagi noreal va faraziy shartlarni ifodalaydi. If qismida Past Simple, natija qismida esa would va fe\'l ishlatiladi.',
-      quiz: {
-        question: '«If I won the lottery, I ______ a new house.» bo\'sh o\'ringa qaysi so\'z mos keladi?',
-        options: ['would buy', 'will buy', 'bought'],
-        correctIndex: 0,
-        explanation: 'Second Conditional formulasiga binoan asosiy gap qismida «would + fe\'l» (would buy) ishlatiladi.'
-      },
-      keyPoints: [
-        'Formula: If + Past Simple, S + would + Verb',
-        'Barcha shaxslar uchun formal nutqda «were» ishlatiladi (If I were you)',
-        'Bu qoida mutlaqo noreal yoki xayoliy vaziyatlarga xosdir'
-      ],
-      strictFeedback: 'Xato! Second Conditional da «will» emas, o\'tgan zamon shakli «would» ishlatiladi!',
-      happyFeedback: 'Well done! Siz Second Conditional shart ergash gaplar qoidasini to\'g\'ri qo\'lladingiz!'
-    },
-    'passive': {
-      topic: 'Ingliz Tili: Passive Voice (Majhul Nisbat)',
-      category: 'Ingliz Tili Grammatikasi',
-      subject: 'Ingliz Tili',
-      simpleExplanation: 'Passive Voice gapda harakatni kim bajarganidan ko\'ra, harakatning o\'zi yoki uning ob\'ekti muhimroq bo\'lganda ishlatiladi. U doimo «to be + V3 (Past Participle)» formulasiga tayanadi (Masalan: The book was written in 1990).',
-      mermaidDiagram: `graph LR
-      A[Active: Subject + Verb + Object] -->|Transformatsiya| B[Passive: Object + be + V3]
-      B --> C[Bajaruvchi noma'lum yoki muhim emas]
-      C --> D[Zarur bo'lsa: by + Agent]`,
-      speechScript: 'Passive Voice majhul nisbat bo\'lib, unda harakatning o\'zi bajaruvchidan ko\'ra muhimroq hisoblanadi. Doimo to be va fe\'lning uchinchi shakli bilan yasaladi.',
-      quiz: {
-        question: '«This bridge ______ in 2010.» gapini to\'g\'ri majhul nisbat shakli bilan to\'ldiring:',
-        options: ['was built', 'is built', 'built'],
-        correctIndex: 0,
-        explanation: '2010-yil o\'tgan zamon bo\'lgani uchun «to be» ning o\'tgan zamon shakli «was» va build fe\'lining 3-shakli «built» ishlatiladi.'
-      },
-      keyPoints: [
-        'Formula: Subject + to be (mos zamonda) + V3',
-        'O\'tgan zamon majhul nisbat: was/were + V3',
-        'Bajaruvchi ko\'rsatilsa «by» predlogi qo\'shiladi'
-      ],
-      strictFeedback: 'E\'tiborsizlik! O\'tgan zamon uchun «is» emas, «was built» ishlatilishi shart!',
-      happyFeedback: 'Great job! Siz majhul nisbatning o\'tgan zamon shaklini to\'g\'ri topdingiz!'
+// Generate questions list matching user's grade limit:
+// 1-4 sinf: 10 ta savol
+// 5-8 sinf: 20 ta savol
+// 9-11 sinf: 30 ta savol
+function generateQuestionsForGrade(
+  subject: string,
+  topic: string,
+  gradeLevel: GradeLevel,
+  baseQuiz: { question: string; options: string[]; correctIndex: number; explanation: string }
+): QuizQuestion[] {
+  const targetCount = gradeLevel === '1-4' ? 10 : gradeLevel === '5-8' ? 20 : 30;
+  const questions: QuizQuestion[] = [];
+
+  // Seed question 1 from base quiz
+  questions.push({
+    id: 1,
+    question: baseQuiz.question,
+    options: baseQuiz.options,
+    correctIndex: baseQuiz.correctIndex,
+    explanation: baseQuiz.explanation
+  });
+
+  // Generate subsequent domain-specific questions to reach exact target count
+  for (let i = 2; i <= targetCount; i++) {
+    let qText = '';
+    let opts: string[] = [];
+    let correct = 0;
+    let exp = '';
+
+    if (subject === 'Ingliz Tili') {
+      const qTypes = [
+        {
+          q: `(${i}-savol) «They have ______ to Tashkent.» Bo'sh o'ringa mos fe'l shaklini qo'ying:`,
+          o: ['gone', 'went', 'go'],
+          c: 0,
+          e: 'Present Perfect zamonida fe\'lning 3-shakli (V3: gone) ishlatiladi.'
+        },
+        {
+          q: `(${i}-savol) «If it rains tomorrow, we ______ at home.» Shart ergash gapini to'ldiring:`,
+          o: ['will stay', 'stayed', 'would stay'],
+          c: 0,
+          e: 'First Conditional da bosh gapda «will + fe\'l» ishlatiladi.'
+        },
+        {
+          q: `(${i}-savol) «The letter was ______ by my teacher.» Majhul nisbatni to'ldiring:`,
+          o: ['written', 'wrote', 'write'],
+          c: 0,
+          e: 'Passive Voice da «was + V3 (written)» qo\'llaniladi.'
+        },
+        {
+          q: `(${i}-savol) Ingliz tilida «He» va «She» olmoshlaridan so'ng qaysi yordamchi fe'l qo'yiladi?`,
+          o: ['has / is / does', 'have / are / do', 'am / were'],
+          c: 0,
+          e: '3-shaxs birlik uchun «has», «is», «does» ishlatiladi.'
+        }
+      ];
+      const sel = qTypes[(i - 2) % qTypes.length];
+      qText = sel.q;
+      opts = sel.o;
+      correct = sel.c;
+      exp = sel.e;
+    } else if (subject === 'Matematika') {
+      const numA = (i * 2) % 10 + 3;
+      const numB = (i * 3) % 10 + 2;
+      const qTypes = [
+        {
+          q: `(${i}-savol) To'g'ri to'rtburchakning bo'yi ${numA} sm, eni ${numB} sm bo'lsa, uning yuzi (S) necha sm²?`,
+          o: [`${numA * numB} sm²`, `${(numA + numB) * 2} sm²`, `${numA * 2 + numB} sm²`],
+          c: 0,
+          e: `Yuz formulasi: S = a · b = ${numA} · ${numB} = ${numA * numB} sm².`
+        },
+        {
+          q: `(${i}-savol) Pifagor teoremasiga ko'ra katetlar kvadrati yig'indisi nimaga teng?`,
+          o: ['Gipotenuza kvadratiga (c²)', 'Perimetrga', 'Burchaklar yig\'indisiga'],
+          c: 0,
+          e: 'Pifagor qoidasi: a² + b² = c².'
+        },
+        {
+          q: `(${i}-savol) ${numA}x = ${numA * 5} chiziqli tenglamaning ildizi (x) nechaga teng?`,
+          o: ['5', '10', '1'],
+          c: 0,
+          e: `x = ${numA * 5} / ${numA} = 5.`
+        }
+      ];
+      const sel = qTypes[(i - 2) % qTypes.length];
+      qText = sel.q;
+      opts = sel.o;
+      correct = sel.c;
+      exp = sel.e;
+    } else if (subject === 'Fizika') {
+      const qTypes = [
+        {
+          q: `(${i}-savol) Nyutonning 2-qonuniga binoan kuch (F) formulasi qaysi?`,
+          o: ['F = m · a', 'F = m / a', 'F = m · v²'],
+          c: 0,
+          e: 'Nyutonning ikkinchi qonuni: Kuch jism massasi va tezlanishining ko\'paytmasiga teng.'
+        },
+        {
+          q: `(${i}-savol) Yer sirtida erkin tushish tezlanishi (g) taxminan nechaga teng?`,
+          o: ['9.8 m/s²', '3.14 m/s²', '100 m/s²'],
+          c: 0,
+          e: 'Yer sirtida o\'rtacha erkin tushish tezlanishi g ≈ 9.81 m/s².'
+        },
+        {
+          q: `(${i}-savol) Butunjahon gravitatsiya qonunida masofa ortsa, tortishish kuchi qanday o'zgaradi?`,
+          o: ['Masofa kvadratiga teskari kamayadi', 'Teng ortadi', 'O\'zgarmaydi'],
+          c: 0,
+          e: 'F ~ 1/r² bo\'lgani uchun masofa ortganda kuch tez kamayadi.'
+        }
+      ];
+      const sel = qTypes[(i - 2) % qTypes.length];
+      qText = sel.q;
+      opts = sel.o;
+      correct = sel.c;
+      exp = sel.e;
+    } else if (subject === 'Kimyo') {
+      const qTypes = [
+        {
+          q: `(${i}-savol) Suvning kimyoviy formulasi qaysi javobda to'g'ri ko'rsatilgan?`,
+          o: ['H2O', 'CO2', 'NaCl'],
+          c: 0,
+          e: 'Suv molekulasi ikkita vodorod va bitta kislorod atomidan iborat.'
+        },
+        {
+          q: `(${i}-savol) Davriy sistemada elementning tartib raqami nimani bildiradi?`,
+          o: ['Yadrodagi protonlar sonini', 'Neytronlar sonini', 'Element massasini'],
+          c: 0,
+          e: 'Tartib raqami yadro zaryadi ya\'ni protonlar soniga teng.'
+        },
+        {
+          q: `(${i}-savol) Qaysi gaz nafas olish va yonish jarayoni uchun hayotiy zarur?`,
+          o: ['Kislorod (O2)', 'Azot (N2)', 'Argon (Ar)'],
+          c: 0,
+          e: 'Kislorod tirik organizmlarning nafas olishi va moddalar yonishini ta\'minlaydi.'
+        }
+      ];
+      const sel = qTypes[(i - 2) % qTypes.length];
+      qText = sel.q;
+      opts = sel.o;
+      correct = sel.c;
+      exp = sel.e;
+    } else if (subject === 'Tarix') {
+      const qTypes = [
+        {
+          q: `(${i}-savol) Amir Temur davlatining poytaxti qaysi shahar bo'lgan?`,
+          o: ['Samarqand', 'Buxoro', 'Toshkent'],
+          c: 0,
+          e: 'Sohibqiron Amir Temur Samarqand shahrini saltanat poytaxtiga aylantirgan.'
+        },
+        {
+          q: `(${i}-savol) Buyuk Ipak yo'lining asosiy maqsadi nima bo'lgan?`,
+          o: ['Sharq va G\'arb o\'rtasida savdo va madaniy aloqa', 'Faqat urush olib borish', 'Xorazm dengizini o\'rganish'],
+          c: 0,
+          e: 'Buyuk Ipak yo\'li qit\'alararo savdo, elchilik va madaniy almashinuv yo\'li bo\'lgan.'
+        },
+        {
+          q: `(${i}-savol) «Kuch — adolatdadir» shiori kimga tegishli?`,
+          o: ['Amir Temurga', 'Mirzo Ulug\'bekka', 'Zahiriddin Boburga'],
+          c: 0,
+          e: 'Bu shior Amir Temur davlat muhrida bitilgan asosiy qonun tamoyilidir.'
+        }
+      ];
+      const sel = qTypes[(i - 2) % qTypes.length];
+      qText = sel.q;
+      opts = sel.o;
+      correct = sel.c;
+      exp = sel.e;
+    } else {
+      // Informatika/AI
+      const qTypes = [
+        {
+          q: `(${i}-savol) Kompyuterning bosh miyasi hisoblangan qurilma nima?`,
+          o: ['Protsessor (CPU)', 'Monitor', 'Klaviatura'],
+          c: 0,
+          e: 'CPU barcha hisoblash va mantiqiy amallarni bajaradi.'
+        },
+        {
+          q: `(${i}-savol) Sun'iy neyron tarmoqlarining asosiy vazifasi nima?`,
+          o: ['Ma\'lumotlardan qonuniyatlarni mustaqil o\'rganish', 'Faqat matn chop etish', 'Elektr energiyasini o\'chirish'],
+          c: 0,
+          e: 'Neyron tarmoqlar katta hajmdagi ma\'lumotlarni tahlil qilib o\'rganadi.'
+        },
+        {
+          q: `(${i}-savol) Blokcheyn texnologiyasida ma'lumotlar nimalarda saqlanadi?`,
+          o: ['Kriptografik bog\'langan bloklarda', 'Oddiy Word hujjatida', 'Qog\'oz papkalarda'],
+          c: 0,
+          e: 'Blokcheyn bloklarning xesh kodlari orqali uzilmas zanjir hosil qiladi.'
+        }
+      ];
+      const sel = qTypes[(i - 2) % qTypes.length];
+      qText = sel.q;
+      opts = sel.o;
+      correct = sel.c;
+      exp = sel.e;
     }
+
+    questions.push({
+      id: i,
+      question: qText,
+      options: opts,
+      correctIndex: correct,
+      explanation: exp
+    });
+  }
+
+  return questions;
+}
+
+// Adaptive Syllabus: Topics sequence per subject and grade
+export const SYLLABUS_SEQUENCE: Record<string, Record<GradeLevel, string[]>> = {
+  'Ingliz Tili': {
+    '1-4': ['Ingliz Tili: Alifbo va Oddiy So\'zlar', 'Ingliz Tili: Ranglar va Sonlar', 'Ingliz Tili: To Be Fe\'li (am, is, are)', 'Ingliz Tili: Kundalik Salomlashuv'],
+    '5-8': ['Ingliz Tili: Present Simple Tense', 'Ingliz Tili: Past Simple va Noto\'g\'ri Fe\'llar', 'Ingliz Tili: Present Continuous', 'Ingliz Tili: Sifat Darajalari'],
+    '9-11': ['Ingliz Tili: Present Perfect Tense va Natijaviylik', 'Ingliz Tili: Second Conditional', 'Ingliz Tili: Passive Voice (Majhul Nisbat)', 'Ingliz Tili: Complex Object va Gerund']
   },
   'Matematika': {
-    'pifagor': {
-      topic: 'Matematika: Pifagor Teoremasi va Geometriya',
-      category: 'Geometriya',
-      subject: 'Matematika',
-      simpleExplanation: 'Pifagor teoremasiga ko\'ra, to\'g\'ri burchakli uchburchakda gipotenuza kvadratining qiymati katetlar kvadratlarining yig\'indisiga doimo teng bo\'ladi. Ushbu teorema barcha fazoviy masofalarni va vektor uzunliklarini aniqlashda poydevor hisoblanadi.',
-      mermaidDiagram: `graph TD
-      A[To'g'ri Burchakli Uchburchak] --> B[Katet a va Katet b]
-      B --> C[Katetlar Kvadratlari: a² + b²]
-      C --> D[Gipotenuza Kvadrati c²]
-      D --> E[Masofa va Vektor Formulalari]`,
-      speechScript: 'Pifagor teoremasi to\'g\'ri burchakli uchburchakda gipotenuza kvadrati katetlar kvadratlarining yig\'indisiga teng ekanligini ta\'kidlaydi. Bu geometriya va fazoviy koordinatalarning asosidir.',
-      quiz: {
-        question: 'To\'g\'ri burchakli uchburchakning katetlari 3 va 4 ga teng bo\'lsa, gipotenuzasi nechaga teng bo\'ladi?',
-        options: ['5', '6', '7'],
-        correctIndex: 0,
-        explanation: 'Pifagor teoremasi bo\'yicha: c² = 3² + 4² = 9 + 16 = 25. Demak, c = √25 = 5 (Misr uchburchagi).'
-      },
-      keyPoints: [
-        'Klassik formula: a² + b² = c²',
-        'Teskari Pifagor teoremasi burchakning 90° ekanligini isbotlashda qo\'llaniladi',
-        'Fazoviy 3D masofa: d = √(x² + y² + z²)'
-      ],
-      strictFeedback: 'Hisoblashda adashdingiz! 3² + 4² = 9 + 16 = 25, uning kvadrat ildizi esa 5 bo\'ladi!',
-      happyFeedback: 'Ofarin! Qadimgi Misr uchburchagi qoidasini a\'lo darajada bilasiz!'
-    },
-    'ehtimol': {
-      topic: 'Matematika: Ehtimollar Nazariyasi va Tasodifiy Hodisalar',
-      category: 'Ehtimollar Nazariyasi',
-      subject: 'Matematika',
-      simpleExplanation: 'Ehtimollar nazariyasi tasodifiy hodisalarning ro\'y berish qonuniyatlarini matematik tilda o\'rganadi. Klassik ehtimollik formulasi qulay imkoniyatlar sonini barcha teng imkoniyatli natijalar soniga nisbati bilan hisoblanadi (P = m / n).',
-      mermaidDiagram: `graph TD
-      A[Barcha teng imkoniyatli natijalar n] --> C[Ehtimollik P = m / n]
-      B[Hodisaga qulay natijalar m] --> C
-      C --> D[Qiymat oralig'i: 0 <= P <= 1]
-      D --> E[Statistika va Kvant Modellari]`,
-      speechScript: 'Ehtimollar nazariyasi hodisaning ro\'y berish imkoniyatini nol va bir oralig\'ida baholaydi. Qulay natijalar sonini barcha natijalar soniga bo\'lish orqali topiladi.',
-      quiz: {
-        question: 'Oddiy 6 qirrali o\'yin suyagi tashlanganda toq son tushish ehtimoli nechaga teng?',
-        options: ['1/2 (50%)', '1/3 (33.3%)', '1/6 (16.7%)'],
-        correctIndex: 0,
-        explanation: 'Jami natijalar n = 6. Toq sonlar (1, 3, 5) soni m = 3. Ehtimollik: P = 3/6 = 1/2.'
-      },
-      keyPoints: [
-        'Klassik formula: P(A) = m / n',
-        'Muqarrar hodisa ehtimoli 1 ga, imkonsiz hodisa ehtimoli 0 ga teng',
-        'Qarama-qarshi hodisa formulasi: P(A\') = 1 - P(A)'
-      ],
-      strictFeedback: 'Xato! Suyakda 3 ta toq son bor (1, 3, 5), jami 6 ta tomon, shunda 3/6 ya\'ni 1/2 bo\'ladi!',
-      happyFeedback: 'Juda to\'g\'ri! Ehtimollikning klassik formulasini mukammal qo\'lladingiz!'
-    }
-  },
-  'Kimyo': {
-    'davriy': {
-      topic: 'Kimyo: Mendeleyev Davriy Qonuni va Atom Tuzilishi',
-      category: 'Anorganik Kimyo',
-      subject: 'Kimyo',
-      simpleExplanation: 'Mendeleyev davriy qonuniga ko\'ra, kimyoviy elementlarning xossalari ularning atom yadrosi zaryadiga (protonlar soniga) davriy ravishda bog\'liqdir. Tashqi elektron qobig\'idagi elektronlar soni elementning qanday reaksiyaga kirishishini belgilab beradi.',
-      mermaidDiagram: `graph TD
-      A[Atom Yadrosi: Protonlar Z] --> B[Davriy Jadvaldagi Tartib Raqami]
-      B --> C[Elektron Qobiqlar Pog'onasi]
-      C --> D[Valent Elektronlar]
-      D --> E[Elementning Kimyoviy Xossalari]`,
-      speechScript: 'Mendeleyev davriy qonuniga ko\'ra, elementlarning xossalari ularning yadro zaryadiga davriy bog\'liqdir. Tashqi qobiqdagi valent elektronlar elementlarning xulq-atvorini belgilaydi.',
-      quiz: {
-        question: 'Atomning kimyoviy xossalarini va uning davriy jadvaldagi o\'rnini asosan nima belgilaydi?',
-        options: [
-          'Yadrodagi neytronlar soni',
-          'Yadrodagi protonlar soni (yadro zaryadi)',
-          'Moddaning umumiy og\'irligi'
-        ],
-        correctIndex: 1,
-        explanation: 'Davriy qonunning zamonaviy ta\'rifi aynan yadro zaryadi (protonlar soni Z) ga tayanadi.'
-      },
-      keyPoints: [
-        'Zaryad soni Z = Protonlar soni = Neytral atomdagi elektronlar soni',
-        'Guruh raqami tashqi valent elektronlar sonini ko\'rsatadi',
-        'Davr raqami elektron qavatlarning umumiy soniga teng'
-      ],
-      strictFeedback: 'Diqqat qiling! Neytronlar izotoplarni hosil qiladi, elementning xossalarini esa yadro zaryadi (protonlar) belgilaydi!',
-      happyFeedback: 'Juda to\'g\'ri! Yadro zaryadi davriy qonunning eng asosiy fundamentidir!'
-    },
-    'kovalent': {
-      topic: 'Kimyo: Kovalent Bog\'lanish va Elektron Juftliklar',
-      category: 'Umumiy Kimyo',
-      subject: 'Kimyo',
-      simpleExplanation: 'Kovalent bog\'lanish — nometall atomlari o\'rtasida umumiy elektron juftliklari hosil bo\'lishi hisobiga yuzaga keladigan kuchli kimyoviy bog\'lanish turidir. Agar elektronlar teng taqsimlansa qutbsiz, elektrmanfiyligi kuchliroq atomga siljisa qutbli kovalent bog\'lanish deyiladi.',
-      mermaidDiagram: `graph TD
-      A[Nometall Atom 1] --> C[Umumiy Elektron Jufti]
-      B[Nometall Atom 2] --> C
-      C --> D[Barqaror Oktet Qobig'i]
-      D --> E[Kovalent Molekula: H2O, CH4, O2]`,
-      speechScript: 'Kovalent bog\'lanish atomlarning umumiy elektron juftliklari hosil qilishi orqali vujudga keladi. Suv, kislorod va organik moddalar aynan kovalent bog\'lar orqali hosil bo\'ladi.',
-      quiz: {
-        question: 'Suv (H2O) molekulasidagi vodorod va kislorod atomlari orasidagi bog\'lanish qaysi turga kiradi?',
-        options: [
-          'Qutbli kovalent bog\'lanish',
-          'Ionli bog\'lanish',
-          'Metall bog\'lanish'
-        ],
-        correctIndex: 0,
-        explanation: 'Kislorod va vodorod har xil nometall bo\'lib, kislorodning elektrmanfiyligi yuqori bo\'lgani sababli qutbli kovalent bog\'lanish hosil bo\'ladi.'
-      },
-      keyPoints: [
-        'Kovalent bog\' umumiy elektron juftliklari orqali hosil bo\'ladi',
-        'Bir xil nometallar (O2, N2) da qutbsiz, turli nometallarda (H2O, HCl) qutbli bo\'ladi',
-        'Kovalent bog\'lanish yuqori mustahkamlikka ega'
-      ],
-      strictFeedback: 'Xato! Suvda ionlar emas, umumiy elektron juftlari mavjud, demak bu qutbli kovalent bog\'dir!',
-      happyFeedback: 'A\'lo! Suv molekulasidagi kovalent bog\'lanish mohiyatini to\'g\'ri tushundingiz!'
-    }
-  },
-  'Tarix': {
-    'temur': {
-      topic: 'Tarix: Amir Temur va Markazlashgan Davlat Boshqaruvi',
-      category: 'O\'zbekiston Tarixi',
-      subject: 'Tarix',
-      simpleExplanation: 'Sohibqiron Amir Temur tarqoq feodal bekliklarni birlashtirib, qudratli markazlashgan davlat va qonun ustuvorligiga asoslangan adolat tizimini barpo etdi. Uning «Kuch — adolatdadir» shiori Buyuk Ipak yo\'lida xavfsizlik va Temuriylar Renessansiga yo\'l ochdi.',
-      mermaidDiagram: `graph TD
-      A[Tarqoq bekliklar birlashuvi] --> B[Markazlashgan Quvvatli Davlat]
-      B --> C[Temur Tuzuklari: Adolat va Qonun]
-      C --> D[Buyuk Ipak Yo'li Xavfsizligi]
-      D --> E[Ilm-fan va Temuriylar Renessansi]`,
-      speechScript: 'Amir Temur tarqoq bekliklarni birlashtirib, qudratli davlat va adolat tizimini yaratdi. Uning Kuch adolatdadir shiori Buyuk Ipak yo\'lida xavfsizlik va ilm-fan taraqqiyotini ta\'minladi.',
-      quiz: {
-        question: 'Amir Temur davlat boshqaruvida qaysi shiorni o\'zining bosh strategik mezoni qilib olgan?',
-        options: [
-          'Kuch — adolatdadir',
-          'Tinchlik — boylikdadir',
-          'G\'alaba — kuchdadir'
-        ],
-        correctIndex: 0,
-        explanation: 'Amir Temurning davlat muhri va uzugida «Rosti-rusti» (Kuch — adolatdadir) shiori zarb etilgan bo\'lib, u butun saltanat qonunlarining o\'zagi bo\'lgan.'
-      },
-      keyPoints: [
-        '«Temur tuzuklari» — davlat boshqaruvi va harbiy san\'atning noyob qomusidir',
-        'Markazlashgan savdo yo\'llari Sharq va G\'arb madaniyatlarini bog\'lagan',
-        'Samarqand shahrida jahon miqyosidagi me\'moriy obidalar qad ko\'tardi'
-      ],
-      strictFeedback: 'Tarixiy manbalarni unutdingiz! Sohibqiron Amir Temurning bosh g\'oyasi aynan «Kuch — adolatdadir» bo\'lgan!',
-      happyFeedback: 'Tasanno! Buyuk Sohibqironning o\'lmas adolat shiorini to\'g\'ri esladingiz!'
-    },
-    'ipak': {
-      topic: 'Tarix: Buyuk Ipak Yo\'li va Madaniy Integratsiya',
-      category: 'Jahon Tarixi',
-      subject: 'Tarix',
-      simpleExplanation: 'Buyuk Ipak yo\'li — Sharqiy Osiyoni O\'rta yer dengizi havzasi bilan bog\'lagan qadimiy karvon yo\'llari tizimi bo\'lib, u orqali faqat ipak emas, balki qog\'oz, din, fan va madaniyat almashinuvi yuz bergan. O\'zbekiston hududi (Samarqand, Buxoro, Xiva) ushbu global savdo arteriyasining eng muhim chorrahasi bo\'lgan.',
-      mermaidDiagram: `graph LR
-      A[Xitoy: Ipak va Choy] --> B[Markaziy Osiyo: So'g'd Savdogarlari]
-      B --> C[Yaqin Sharq va Vizantiya]
-      C --> D[Yevropa Bozorlari]
-      B -.->|Madaniy almashinuv| E[Astronomiya, Tibbiyot, Falsafa]`,
-      speechScript: 'Buyuk Ipak yo\'li qit\'alarni bog\'lagan global savdo tizimi bo\'lib, unda Samarqand va Buxoro kabi shaharlarimiz madaniyat va fan markazi vazifasini bajargan.',
-      quiz: {
-        question: 'Buyuk Ipak yo\'lida savdo va madaniy vositachilikda eng faol xalq qaysi bo\'lgan?',
-        options: ['So\'g\'diylar', 'Rimliklar', 'Vikinglar'],
-        correctIndex: 0,
-        explanation: 'So\'g\'diy savdogarlar Xitoydan tortib Vizantiyagacha butun yo\'l bo\'ylab savdo koloniyalarini boshqargan va asosiy diplomat bo\'lgan.'
-      },
-      keyPoints: [
-        'Miloddan avvalgi II asrda Xan imperiyasi elchisi Chjan Tyan ekspeditsiyasidan so\'ng faollashgan',
-        'Ipak yo\'li orqali qog\'oz ishlab chiqarish siri Samarqanddan Yevropaga tarqalgan',
-        'Savdo xavfsizligi karvonsaroylar va davlat shartnomalari bilan himoyalangan'
-      ],
-      strictFeedback: 'Tarixiy faktni adashtirdingiz! Asosiy karvon vositachilari aynan So\'g\'d xalqi bo\'lgan!',
-      happyFeedback: 'A\'lo darajada! Qadimiy So\'g\'d savdo karvonlari tarixini to\'g\'ri bildingiz!'
-    }
-  },
-  'Informatika/AI': {
-    'neyron': {
-      topic: 'Informatika: Sun\'iy Neyron Tarmoqlari',
-      category: 'Sun\'iy Intellekt',
-      subject: 'Informatika/AI',
-      simpleExplanation: 'Sun\'iy neyron tarmoqlari — inson miyasi biologik neyronlari ishlash prinsipiga taqlid qiluvchi matematik hisoblash algoritmidir. Ular kiruvchi ma\'lumotlarni ko\'p qatlamli vaznlar va aktivatsiya funksiyalari orqali qayta ishlab, murakkab qonuniyatlarni mustaqil taniy oladi.',
-      mermaidDiagram: `graph LR
-      A[Kirish Qatlami x] -->|Vaznlar W| B[Yashirin Qatlam Neyronlari]
-      B -->|Aktivatsiya ReLU| C[Chiqish Qatlami y]
-      C -->|Xatolik Hisobi| D[Backpropagation & Gradient]
-      D -.->|Vaznlarni yangilash| B`,
-      speechScript: 'Sun\'iy neyron tarmoqlari inson miyasi tuzilishiga taqlid qiluvchi algoritmlardir. Ular qatlamlar orqali ma\'lumotlarni tahlil qilib, xatolarni kamaytirish orqali mukammallashadi.',
-      quiz: {
-        question: 'Neyron tarmog\'ini o\'qitishda chiqishdagi xatolikni orqaga tarqatib vaznlarni yangilash algoritmi qanday ataladi?',
-        options: [
-          'Backpropagation (Orqaga tarqalish)',
-          'Overfitting (Qayta moslashish)',
-          'Data Augmentation'
-        ],
-        correctIndex: 0,
-        explanation: 'Backpropagation algoritmi xatolik gradientini hisoblab, tarmoqdagi barcha vaznlarni teskari tartibda aniq yangilaydi.'
-      },
-      keyPoints: [
-        'Neyron matematik modeli: y = f(∑(w_i * x_i) + b)',
-        'Aktivatsiya funksiyalari (ReLU, GELU) chiziqsiz murakkab bog\'liqliklarni o\'rgatadi',
-        'Chuqur o\'rganish (Deep Learning) — ko\'p sonli yashirin qatlamlarga asoslanadi'
-      ],
-      strictFeedback: 'Xato! Overfitting bu xatolikni tarqatish emas, balki tarmoqning haddan tashqari yodlab olish kasalligidir!',
-      happyFeedback: 'Mukammal! Siz mashinali o\'rganishning eng muhim ustuni bo\'lgan Backpropagation algoritmini to\'g\'ri tanladingiz!'
-    },
-    'blokcheyn': {
-      topic: 'Informatika: Blokcheyn va Taqsimlangan Registr',
-      category: 'Kriptografiya va Xavfsizlik',
-      subject: 'Informatika/AI',
-      simpleExplanation: 'Blokcheyn — ma\'lumotlar ketma-ket bloklarda saqlanadigan va har bir blok oldingi blokning kriptografik xesh kodiga bog\'langan markazsizlashtirilgan bazadir. Bitta blokdagi ma\'lumotni o\'zgartirish butun zanjir xeshini buzib yuborishi sababli uni soxtalashtirish imkonsizdir.',
-      mermaidDiagram: `graph LR
-      A[Blok #1: Xesh A] -->|Oldingi xesh| B[Blok #2: Xesh B]
-      B -->|Oldingi xesh| C[Blok #3: Xesh C]
-      C -->|Konsensus| D[P2P Tarmoq Validatsiyasi]
-      D --> E[O'zgarmas Xavfsiz Tranzaksiya]`,
-      speechScript: 'Blokcheyn ma\'lumotlar ketma-ket kriptografik xeshlar bilan bog\'langan xavfsiz tizimdir. Undagi ma\'lumotlarni hech kim bir tomonlama o\'zgartira olmaydi.',
-      quiz: {
-        question: 'Blokcheynda yangi blok oldingi blok bilan qanday bog\'lanadi?',
-        options: [
-          'Oldingi blokning kriptografik xesh kodi orqali',
-          'Foydalanuvchining login va paroli orqali',
-          'Markaziy serverning buyrug\'i orqali'
-        ],
-        correctIndex: 0,
-        explanation: 'Har bir yangi blok o\'z sarlavhasida oldingi blokning xeshini saqlaydi, bu esa uzilmas xavfsiz zanjirni kafolatlaydi.'
-      },
-      keyPoints: [
-        'Asimmetrik kriptografiya (ochiq va yopiq kalitlar) ishlatiladi',
-        'Konsensus mexanizmlari: Proof of Work (PoW) va Proof of Stake (PoS)',
-        'Smart-kontraktlar — shartlar bajarilganda avtomatik ishga tushuvchi kod'
-      ],
-      strictFeedback: 'Diqqat! Blokcheyn markazsiz tizim, u login-parol emas, kriptografik xesh bilan bog\'lanadi!',
-      happyFeedback: 'Barakalla! Blokcheynning kriptografik bog\'lanish tamoyilini to\'g\'ri bildingiz!'
-    }
+    '1-4': ['Matematika: Qo\'shish va Ayirish Amallari', 'Matematika: Ko\'paytirish Jadvali', 'Matematika: Geometrik Shakllar (Kvadrat, Doira)', 'Matematika: Oddiy Masalalar'],
+    '5-8': ['Matematika: Oddiy va O\'nli Kasrlar', 'Matematika: Pifagor Teoremasi va Geometriya', 'Matematika: Bir Noma\'lumli Tenglamalar', 'Matematika: Foizlar va Proportsiya'],
+    '9-11': ['Matematika: Kvadrat Tenglamalar va Viyet Teoremasi', 'Matematika: Trigonometriya Asoslari', 'Matematika: Hosila va Funksiyalar Tekshiruvi', 'Matematika: Ehtimollar Nazariyasi']
   },
   'Fizika': {
-    'gravitatsiya': {
-      topic: 'Fizika: Butunjahon Gravitatsiya Qonuni',
-      category: 'Klassik Mexanika',
-      subject: 'Fizika',
-      simpleExplanation: 'Gravitatsiya — barcha massaga ega jismlarning bir-birini o\'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo\'lsa, uning gravitatsiya maydoni shunchalik kuchli bo\'ladi va masofa ortishi bilan bu kuch tez pasayadi.',
-      mermaidDiagram: `graph TD
-      A[Massaga ega jism M1] -->|Gravitatsiya kuchi F| C[O'zaro tortishish markazi]
-      B[Massaga ega jism M2] -->|Gravitatsiya kuchi F| C
-      C --> D[Masofa kvadrati R² ga teskari proportsional]
-      D --> E[Sayyoralar orbital harakati]`,
-      speechScript: 'Gravitatsiya — barcha massaga ega jismlarning bir-birini o\'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo\'lsa, uning tortishish kuchi shunchalik kuchli bo\'ladi.',
-      quiz: {
-        question: 'Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o\'zgaradi?',
-        options: [
-          '2 barobar kamayadi',
-          '4 barobar kamayadi',
-          '2 barobar ortadi'
-        ],
-        correctIndex: 1,
-        explanation: 'Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/R²). Shu bois masofa 2 marta ortganda, kuch 4 barobar kamayadi!'
-      },
-      keyPoints: [
-        'Nyuton butunjahon tortishish formulasi: F = G · (m₁ · m₂) / r²',
-        'Gravitatsiya doimiysi: G ≈ 6.674 × 10⁻¹¹ N·m²/kg²',
-        'Sayyoralar Quyosh atrofida ellips orbitalar bo\'ylab harakatlanadi'
-      ],
-      strictFeedback: 'Diqqat! Masofa kvadratiga e\'tibor bermadingiz. F = G·m1·m2/r² formulasini qayta ko\'rib chiqing!',
-      happyFeedback: 'Ajoyib! Siz Nyutonning teskari kvadratlar qonunini to\'g\'ri tushundingiz!'
-    },
-    'kvant': {
-      topic: 'Fizika: Kvant Mexanikasi va Superpozitsiya',
-      category: 'Kvant Fizikasi',
-      subject: 'Fizika',
-      simpleExplanation: 'Kvant mexanikasida mikrozarracha kuzatuv o\'tkazilgunga qadar bir vaqtning o\'zida bir nechta mumkin bo\'lgan holatlarda (superpozitsiya) mavjud bo\'ladi. Kuzatuv jarayoni to\'lqin funksiyasini kollapsga uchratadi va zarra faqat bitta aniq natijada namoyon bo\'ladi.',
-      mermaidDiagram: `graph TD
-      A[Kvant Zarra / Qubit] -->|Superpozitsiya| B[Bir vaqtda 0 va 1 holatida]
-      B -->|Kuzatuv / O'lchash jarayoni| C[To'lqin funksiyasi kollapsi]
-      C --> D[Aniq bitta natija: 0 yoki 1]`,
-      speechScript: 'Kvant fizikasi mikrodunyoni o\'rganadi. Unda zarralar bir vaqtning o\'zida bir nechta holatda bo\'lishi mumkin, ammo kuzatilganda aniq bitta holatga kollaps bo\'ladi.',
-      quiz: {
-        question: 'Kvant superpozitsiya holati qachon aniq bitta natijaga aylanadi?',
-        options: [
-          'Zarra mutlaq nol haroratga yetganda',
-          'O\'lchov yoki kuzatuv amalga oshirilganda',
-          'Zarra tezligi yorug\'lik tezligidan oshganda'
-        ],
-        correctIndex: 1,
-        explanation: 'Kvant mexanikasida kuzatuv to\'lqin funksiyasini kollapsga uchratadi va zarra aniq bitta holatda qayd etiladi.'
-      },
-      keyPoints: [
-        'Geyzenberg noaniqlik prinsipi: zarraning koordinatasi va impulsini bir vaqtda aniq bilib bo\'lmaydi',
-        'Kvant kompyuterlari qabitlar hisobiga eksponensial tez hisoblaydi',
-        'Shryodinger mushugi — superpozitsiya tushunchasining klassik tajribasidir'
-      ],
-      strictFeedback: 'Diqqat qiling! Kvant holati harorat emas, o\'lchash (kuzatuv) natijasida kollaps bo\'ladi!',
-      happyFeedback: 'Tasanno! Kvant to\'lqin funksiyasi kollapsi prinsipini a\'lo darajada bilasiz!'
-    }
+    '1-4': ['Fizika: Tabiatdagi Harakat va Tezlik', 'Fizika: Issiqlik va Sovuqlik', 'Fizika: Tovush va Yorug\'lik', 'Fizika: Magnitning Sehrli Kuchlari'],
+    '5-8': ['Fizika: Massa va Zichlik', 'Fizika: Bosim va Arximed Qonuni', 'Fizika: Nyutonning Harakat Qonunlari', 'Fizika: Ish, Quvvat va Energiya'],
+    '9-11': ['Fizika: Butunjahon Gravitatsiya Qonuni', 'Fizika: Mexanik Tebranishlar va To\'lqinlar', 'Fizika: Termodinamika va Ideal Gaz Qonunlari', 'Fizika: Kvant Mexanikasi va Fotoeffekt']
+  },
+  'Kimyo': {
+    '1-4': ['Kimyo: Tabiatdagi Suv va Havo', 'Kimyo: Qattiq, Suyuq va Gaz Holatlar', 'Kimyo: Aralashmalar va Toza Moddalar', 'Kimyo: Qiziqarli Uy Tajribalari'],
+    '5-8': ['Kimyo: Moddalar va Atom Tuzilishi', 'Kimyo: Oddiy va Murakkab Moddalar', 'Kimyo: Kislorod va Yonish Reaksiyalari', 'Kimyo: Valentlik Asoslari'],
+    '9-11': ['Kimyo: Mendeleyev Davriy Qonuni va Atom Tuzilishi', 'Kimyo: Kovalent va Ionli Bog\'lanish', 'Kimyo: Kislota, Asos va Tuzlar', 'Kimyo: Organik Moddalar (Uglevodorodlar)']
+  },
+  'Tarix': {
+    '1-4': ['Tarix: Oila va Vatan Tarixi', 'Tarix: Qadimgi Odamlar Hayoti', 'Tarix: Qadimiy Shaharlarimiz', 'Tarix: Milliy Qadriyatlarimiz'],
+    '5-8': ['Tarix: Qadimgi Turon va Baqtriya', 'Tarix: Buyuk Ipak Yo\'li Madaniyati', 'Tarix: Xorazmshohlar Davlati', 'Tarix: Mo\'g\'ullar Bosqini va Jaloliddin'],
+    '9-11': ['Tarix: Amir Temur va Markazlashgan Davlat Boshqaruvi', 'Tarix: Temuriylar Renessansi va Mirzo Ulug\'bek', 'Tarix: O\'zbek Xonliklari Davri', 'Tarix: Turkiston Jadidchilik Harakati']
+  },
+  'Informatika/AI': {
+    '1-4': ['Informatika: Kompyuter bilan Tanishuv', 'Informatika: Sichqoncha va Klaviatura', 'Informatika: Rangli Chizish Dasturlari', 'Informatika: Xavfsiz Internet'],
+    '5-8': ['Informatika: Axborot va Sanash Sistemalari', 'Informatika: Algoritm Turlari va Chiziqli Bloklar', 'Informatika: Scratch Dasturlash Asoslari', 'Informatika: Matn Muharrirlari'],
+    '9-11': ['Informatika: Sun\'iy Neyron Tarmoqlari', 'Informatika: Python Dasturlash Tili va Funksiyalar', 'Informatika: Ma\'lumotlar Bazasi va SQL', 'Informatika: Blokcheyn va Kiberxavfsizlik']
   }
 };
 
-// Strict Subject-Specific Dynamic Generator (Guaranteed 0% Cross-Subject Leak)
-function getSubjectDynamicFallback(topicInput: string, subjectInput: string): LessonData {
-  const normTopic = topicInput.toLowerCase();
-  const subjMap = SUBJECT_PRESETS[subjectInput] || SUBJECT_PRESETS['Fizika'];
+// Fallback Generator with exact syllabus support
+function getAdaptiveFallbackLesson(
+  subject: string,
+  topic: string,
+  gradeLevel: GradeLevel,
+  grade: number
+): LessonData {
+  const cleanTitle = topic || SYLLABUS_SEQUENCE[subject]?.[gradeLevel]?.[0] || `${subject} Darsi`;
+  const closingSentence = "Mavzuni o'zlashtirib bo'ldingizmi? Mavzuga oid savol-javoblar qilamizmi keyingi mavzuga o'tishimiz uchun?";
 
-  // Check ONLY within the specified subject
-  for (const [key, lesson] of Object.entries(subjMap)) {
-    if (normTopic.includes(key) || key.includes(normTopic)) {
-      return lesson;
-    }
-  }
+  const baseQuiz = {
+    question: `${cleanTitle} mavzusida o'rganilgan asosiy qoidaning mohiyati nimada?`,
+    options: [
+      'Fundamental qonuniyat va amaliy masalalarni to\'g\'ri yechishda',
+      'Faqat kitobni tez o\'qib chiqishda',
+      'Hech qanday qoidaga rioya qilmaslikda'
+    ],
+    correctIndex: 0,
+    explanation: `${subject} fanida barcha masalalar fundamental qonuniyatlar va formulalarga asoslanadi.`
+  };
 
-  // If no exact match inside subject, return the first topic of THAT subject
-  const firstLessonOfSubject = Object.values(subjMap)[0];
-  const cleanTitle = topicInput.trim() || `${subjectInput} Asoslari`;
+  const quizList = generateQuestionsForGrade(subject, cleanTitle, gradeLevel, baseQuiz);
+  const nextList = SYLLABUS_SEQUENCE[subject]?.[gradeLevel] || [];
+  const currIdx = nextList.findIndex(t => t.toLowerCase().includes(cleanTitle.toLowerCase()));
+  const nextTopic = (currIdx >= 0 && currIdx < nextList.length - 1) ? nextList[currIdx + 1] : nextList[0];
 
-  if (subjectInput === 'Ingliz Tili') {
-    return {
-      topic: `Ingliz Tili: ${cleanTitle}`,
-      category: 'Ingliz Tili Grammatikasi va Leksikasi',
-      subject: 'Ingliz Tili',
-      simpleExplanation: `Ushbu mavzu ingliz tilining muhim grammatik yoki leksik qoidasi bo'lib, fikrni aniq va ravon ifodalashga xizmat qiladi. Qoidani to'g'ri o'zlashtirish orqali nutqingizda grammatik xatolarning oldini olasiz.`,
-      mermaidDiagram: `graph LR
-      A[Grammar Rule: ${cleanTitle.slice(0, 15)}] --> B[Structure and Usage]
-      B --> C[Sentence Construction]
-      C --> D[Fluent Communication]`,
-      speechScript: `Ingliz tili darsi: ${cleanTitle} mavzusi. Ushbu qoida orqali to'g'ri va ravon muloqot qilishni o'rganamiz.`,
-      quiz: {
-        question: `«${cleanTitle}» mavzusida ingliz tili qoidalariga rioya qilish nima uchun muhim?`,
-        options: [
-          'Fikrni xalqaro standartda aniq va xatosiz ifodalash uchun',
-          'Faqat kitob o\'qish tezligini oshirish uchun',
-          'Hech qanday ahamiyatga ega emas'
-        ],
-        correctIndex: 0,
-        explanation: 'Ingliz tilida grammatik qoidalar xalqaro muloqotda tushunarsiz vaziyatlarning oldini oladi.'
-      },
-      keyPoints: [
-        `Qoida 1: ${cleanTitle} formulasiga qat'iy amal qiling`,
-        'Qoida 2: Gapdagi ega va kesim mosligini unutmang',
-        'Qoida 3: So\'z boyligini muntazam amaliyotda qo\'llang'
-      ],
-      strictFeedback: 'Grammatika qoidalariga jiddiy e\'tibor qarating!',
-      happyFeedback: 'Excellent! Ingliz tili qoidasini a\'lo darajada tushundingiz!'
-    };
-  }
-
-  if (subjectInput === 'Matematika') {
-    return {
-      topic: `Matematika: ${cleanTitle}`,
-      category: 'Aniq Fanlar va Matematika',
-      subject: 'Matematika',
-      simpleExplanation: `Ushbu mavzu matematik hisoblashlar va mantiqiy teoremalarning ajralmas qismidir. Formulalarning ichki qonuniyatlarini bilish orqali eng murakkab masalalarni ham oson yechish mumkin.`,
-      mermaidDiagram: `graph TD
-      A[Boshlang'ich Shartlar: ${cleanTitle.slice(0, 15)}] --> B[Matematik Formula va Teorema]
-      B --> C[Mantiqiy Qadamlar va Hisob-kitob]
-      C --> D[Aniq Yechim va Natija]`,
-      speechScript: `Matematika darsi: ${cleanTitle} mavzusi. Bu formula orqali murakkab tenglamalarni aniq hisoblab chiqamiz.`,
-      quiz: {
-        question: `«${cleanTitle}» mavzusida matematik yechimning to'g'riligi nimaga asoslanadi?`,
-        options: [
-          'Aksioma, teoremalar va aniq formulalarga',
-          'Tasodifiy taxminiy sonlarga',
-          'Faqat chiroyli yozuvga'
-        ],
-        correctIndex: 0,
-        explanation: 'Matematika qat\'iy mantiqiy teoremalar va aksiomalarga asoslangan aniq fandir.'
-      },
-      keyPoints: [
-        `Asosiy formula: ${cleanTitle} tenglamasini qo'llash`,
-        'Har doim yechimni tekshirish shart',
-        'Mantiqiy qadamlarni izchil davom ettiring'
-      ],
-      strictFeedback: 'Hisob-kitobda xatoga yo\'l qo\'ydingiz, formulani qayta ko\'ring!',
-      happyFeedback: 'Barakalla! Matematik mantiqni to\'g\'ri qo\'lladingiz!'
-    };
-  }
-
-  if (subjectInput === 'Kimyo') {
-    return {
-      topic: `Kimyo: ${cleanTitle}`,
-      category: 'Kimyo Fani',
-      subject: 'Kimyo',
-      simpleExplanation: `Ushbu kimyoviy jarayon moddalar tarkibi, tuzilishi va ularning bir-biriga aylanish qonuniyatlarini ifodalaydi. Reaksiyalar davomida atomlar yo'qolmaydi, faqat yangi birikmalarga qayta guruhlanadi.`,
-      mermaidDiagram: `graph TD
-      A[Dastlabki Moddalar: ${cleanTitle.slice(0, 15)}] --> B[Kimyoviy Reaksiya va Energetik O'zgarish]
-      B --> C[Yangi Moddalar Hosil Bo'lishi]
-      C --> D[Modda Massasining Saqlanish Qonuni]`,
-      speechScript: `Kimyo darsi: ${cleanTitle} mavzusi. Kimyoviy reaksiyada moddalarning o'zaro ta'siri va yangi birikmalar hosil bo'lishini o'rganamiz.`,
-      quiz: {
-        question: `«${cleanTitle}» kimyoviy reaksiyasida qaysi fundamental qonun doimo o'rinli?`,
-        options: [
-          'Moddalar massasining saqlanish qonuni',
-          'Moddalar yo\'q bo\'lib ketish qonuni',
-          'Harorat doimiyligi qonuni'
-        ],
-        correctIndex: 0,
-        explanation: 'Barcha kimyoviy reaksiyalarda dastlabki moddalar massasi mahsulotlar massasiga teng bo\'ladi.'
-      },
-      keyPoints: [
-        `Reaksiya tenglamasini to'g'ri tenglashtiring`,
-        'Valentlik va zaryadlar muvozanatiga e\'tibor bering',
-        'Reaksiya sharoitlarini (harorat, katalizator) hisobga oling'
-      ],
-      strictFeedback: 'Kimyoviy qonuniyatni e\'tibordan chetda qoldirdingiz!',
-      happyFeedback: 'Tasanno! Kimyoviy jarayon mohiyatini to\'g\'ri bildingiz!'
-    };
-  }
-
-  if (subjectInput === 'Tarix') {
-    return {
-      topic: `Tarix: ${cleanTitle}`,
-      category: 'Tarix Fani',
-      subject: 'Tarix',
-      simpleExplanation: `Ushbu tarixiy voqelik insoniyat sivilizatsiyasi rivojlanishida muhim burilish yasagan davrni qamrab oladi. Tarixiy manbalar o'tmishdagi sabab-oqibat zanjirini tushunishga xizmat qiladi.`,
-      mermaidDiagram: `graph TD
-      A[Tarixiy Sabablar: ${cleanTitle.slice(0, 15)}] --> B[Tarixiy Voqea va Harakatlar]
-      B --> C[Ijtimoiy va Siyosiy Oqibatlar]
-      C --> D[Zamonaviy Madaniy Meros]`,
-      speechScript: `Tarix darsi: ${cleanTitle} mavzusi. Tarixiy voqealar sabab va oqibatlar zanjiri orqali o'rganiladi.`,
-      quiz: {
-        question: `«${cleanTitle}» tarixiy jarayonini o'rganishda asosiy manba nima hisoblanadi?`,
-        options: [
-          'Yozma manbalar, arxeologik qazilmalar va solnomalar',
-          'Faqat og\'zaki uydirma afsonalar',
-          'Hech qanday manba mavjud emas'
-        ],
-        correctIndex: 0,
-        explanation: 'Ilmiy tarixshunoslik moddiy va yozma tarixiy manbalarga tayanadi.'
-      },
-      keyPoints: [
-        'Voqeaning sanasi va geografik o\'rnini aniq biling',
-        'Tarixiy shaxslarning rolini xolisona baholang',
-        'Sabab va oqibatlarni bir-biri bilan bog\'lang'
-      ],
-      strictFeedback: 'Tarixiy manbalarga jiddiyroq yondashing!',
-      happyFeedback: 'Ajoyib! Tarixiy voqelikni to\'g\'ri tahlil qildingiz!'
-    };
-  }
-
-  return firstLessonOfSubject;
+  return {
+    topic: cleanTitle,
+    category: `${subject} (${grade}-sinf)`,
+    subject,
+    gradeLevel,
+    grade,
+    simpleExplanation: `${cleanTitle} — ${grade}-sinf ${subject} fanining asosiy mavzusidir. Uning mohiyati jarayonlarning sabab-oqibat mexanizmini va amaliy yechimini aniq tushunishga asoslanadi.`,
+    formulas: [
+      `1-Qoida: ${cleanTitle} formulasiga qat'iy rioya qiling`,
+      '2-Qoida: Olingan natijalarni nazariy qonuniyat bilan solishtiring',
+      '3-Qoida: Masala shartidagi o\'lchov birliklarini to\'g\'ri tekshiring'
+    ],
+    exampleProblem: {
+      problem: `${cleanTitle} mavzusi bo'yicha namunaviy masala: Berilgan parametrlar bo'yicha natijani toping.`,
+      stepByStepSolution: 'Yechish bosqichlari: 1) Masala shartini yozamiz; 2) Asosiy formulani tanlaymiz; 3) Qiymatlarni qo\'yib, aniq hisoblaymiz.'
+    },
+    closingQuestion: closingSentence,
+    mermaidDiagram: `graph TD
+    A[Dastlabki Nazariya: ${cleanTitle.slice(0, 15)}] --> B[Asosiy Formula va Qoida]
+    B --> C[Namuna Masala Yechimi]
+    C --> D[Mustaqil Savol-Javob Sinovi]`,
+    speechScript: `${cleanTitle} mavzusini tushuntirib beraman. Ushbu mavzuning asosiy formulasini diqqat bilan o'rganing. Namuna masalani bosqichma-bosqich yechib ko'rdik. ${closingSentence}`,
+    quizList,
+    passingScorePercent: 60,
+    nextTopic,
+    reviewExplanation: `Keling, ${cleanTitle} mavzusini qayta tushuntiraman: Asosiy qoidani eslab qoling, formulani to'g'ri qo'llang va masalani shoshilmasdan qayta hisoblang.`,
+    strictFeedback: "Diqqatingizni jamlang! Natija 60% dan past bo'ldi. Keling, mavzuni qayta tushuntiraman!",
+    happyFeedback: "Ajoyib! Natijangiz 60% dan yuqori bo'ldi va mavzuni muvaffaqiyatli o'zlashtirdingiz!"
+  };
 }
 
-// API endpoint to generate lecture & voice lesson
+// API endpoint: Generate Adaptive Lesson
 app.post('/api/generate-lesson', async (req: Request, res: Response) => {
-  const { topic, subject = 'Fizika', voicePersona = 'jasur' } = req.body;
-  if (!topic || typeof topic !== 'string') {
-    return res.status(400).json({ error: 'Mavzu kiritilishi shart' });
-  }
+  const {
+    topic,
+    subject = 'Fizika',
+    gradeLevel = '5-8',
+    grade = 7,
+    voicePersona = 'jasur'
+  } = req.body;
 
-  // If Gemini is available, generate dynamic response with strict subject boundary
+  const closingSentence = "Mavzuni o'zlashtirib bo'ldingizmi? Mavzuga oid savol-javoblar qilamizmi keyingi mavzuga o'tishimiz uchun?";
+  const targetQuestionsCount = gradeLevel === '1-4' ? 10 : gradeLevel === '5-8' ? 20 : 30;
+
   if (ai) {
     try {
       const personaTone = voicePersona === 'jasur' 
         ? "Ustoz Jasur (vazmin, qat'iyatli, bilimdon erkak lektor)" 
         : "Ustoz Malika (do'stona, iliq, tushunarli ayol repetitor)";
 
-      const systemInstruction = `Siz "OmniCore AI Ecosystem" loyihasining "AI Voice & Lecture Engine v2.0" professional o'zbek tili lektori va repetitorisiz.
-QAT'IY CHEKLOV (FAN BO'YICHA QAT'IY CHEGARA):
-Hozir tanlangan fan: "${subject}".
-Siz FAQAT VA FAQAT ushbu tanlangan "${subject}" fani doirasida dars tayyorlashingiz SHART!
-Boshqa fanlarga (masalan, Fizikaga yoki Gravitatsiyaga) aslo chalg'imang!
-- Agar tanlangan fan "Ingliz Tili" bo'lsa: Mavzu, sodda tushuntirish, diagramma, test va kalit qoidalar FAQAT Ingliz tili grammatikasi, leksikasi yoki so'zlashuv qoidalari haqida bo'lishi shart!
-- Agar tanlangan fan "Matematika" bo'lsa: Faqat matematika, geometriya, algebra, formulalar va teoremalar haqida bo'lsin!
-- Agar tanlangan fan "Kimyo" bo'lsa: Faqat kimyoviy elementlar, reaksiyalar va molekulalar haqida bo'lsin!
-- Agar tanlangan fan "Tarix" bo'lsa: Faqat tarixiy voqealar, arboblar va xronologiya haqida bo'lsin!
-- Agar tanlangan fan "Informatika/AI" bo'lsa: Faqat IT, sun'iy intellekt, algoritmlar va dasturlash haqida bo'lsin!
-- Agar tanlangan fan "Fizika" bo'lsa: Faqat fizika qonuniyatlari haqida bo'lsin!
-
-BARCHA MATNLAR TOZA O'ZBEK TILI LOTIN ALIFBOSIDA BO'LISHI SHART!`;
+      const systemInstruction = `Siz maktab o'quvchilari uchun interaktiv va moslashuvchan (adaptive) professional AI O'qituvchisiz.
+QAT'IY PEDAGOGIK QOIDALAR:
+1. TANLANGAN FAN: "${subject}". Faqat va faqat "${subject}" fani doirasida dars bering! Boshqa fanga chalg'imang!
+2. FOYDALANUVCHI SINFI: ${grade}-sinf (Toifa: ${gradeLevel} sinf).
+   - Savollar soni: Ushbu sinf toifasiga mos ravishda AYNAN ${targetQuestionsCount} ta savol bo'lishi shart! (1-4 sinf: 10 ta, 5-8 sinf: 20 ta, 9-11 sinf: 30 ta).
+3. MAVZU TUSHUNTIRISH:
+   Dastlab mavzuni, formula va masalalarni dona-dona, oddiy va tushunarli tilda tushuntiring.
+   Har bir tushuntirish oxirida va speechScript oxirida albatta shunday deb so'rang:
+   "${closingSentence}"
+4. BARCHA MATNLAR TOZA O'ZBEK TILI LOTIN ALIFBOSIDA BO'LISHI SHART!`;
 
       const prompt = `O'qituvchi personasi: ${personaTone}.
-Tanlangan fan: "${subject}".
-Foydalanuvchi kiritgan mavzu: "${topic}".
+Fan: "${subject}".
+Sinf: ${grade}-sinf (${gradeLevel} toifasi).
+Mavzu: "${topic}".
+Savollar soni: ${targetQuestionsCount} ta test savoli.
 
-Ushbu fan va mavzu doirasida quyidagi qat'iy talablar asosida dars tayyorlang:
-1. SODDA TUSHUNTIRISH: Mavzuni 2 ta qisqa, aniq va sodda jumlada tushuntiring (7 yoshli o'quvchiga ham tushunarli bo'lsin).
-2. MERMAID.JS DIAGRAMMA: Mavzuni vizual ifodalovchi toza, to'g'ri sintaksisli Mermaid.js kodi (masalan, "graph TD" yoki "graph LR"). Kod ichida faqat inglizcha harflar va qavs ichida o'zbekcha yozuvlar bo'lsin.
-3. NUTQ MATNI (speechScript): Ovozli o'qilishi uchun qulay, o'zbek tilidagi 2 jumlali toza matn.
-4. KOGNITIV MINI-TEST (quiz): O'quvchi diqqatini tekshirish uchun aynan ushbu fanga va darsga doir 1 ta test savoli, 3 ta variant (A, B, C) va to'g'ri javob indeksi (0, 1 yoki 2) hamda qisqa izoh.
-5. ASOSIY QOIDALAR (keyPoints): 3 ta qisqa va muhim qoida.
-6. strictFeedback va happyFeedback: 1 qisqadan jumla.`;
+Ushbu qoidalar asosida JSON formatda to'liq dars yarating.`;
 
       const response = await ai.models.generateContent({
         model: 'gemini-3.8-flash',
@@ -665,30 +469,54 @@ Ushbu fan va mavzu doirasida quyidagi qat'iy talablar asosida dars tayyorlang:
               topic: { type: Type.STRING },
               category: { type: Type.STRING },
               subject: { type: Type.STRING },
+              gradeLevel: { type: Type.STRING },
+              grade: { type: Type.INTEGER },
               simpleExplanation: { type: Type.STRING },
-              mermaidDiagram: { type: Type.STRING },
-              speechScript: { type: Type.STRING },
-              quiz: {
-                type: Type.OBJECT,
-                properties: {
-                  question: { type: Type.STRING },
-                  options: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING },
-                  },
-                  correctIndex: { type: Type.INTEGER },
-                  explanation: { type: Type.STRING },
-                },
-                required: ['question', 'options', 'correctIndex', 'explanation'],
-              },
-              keyPoints: {
+              formulas: {
                 type: Type.ARRAY,
                 items: { type: Type.STRING },
               },
+              exampleProblem: {
+                type: Type.OBJECT,
+                properties: {
+                  problem: { type: Type.STRING },
+                  stepByStepSolution: { type: Type.STRING },
+                },
+                required: ['problem', 'stepByStepSolution'],
+              },
+              closingQuestion: { type: Type.STRING },
+              mermaidDiagram: { type: Type.STRING },
+              speechScript: { type: Type.STRING },
+              quizList: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    id: { type: Type.INTEGER },
+                    question: { type: Type.STRING },
+                    options: {
+                      type: Type.ARRAY,
+                      items: { type: Type.STRING },
+                    },
+                    correctIndex: { type: Type.INTEGER },
+                    explanation: { type: Type.STRING },
+                  },
+                  required: ['id', 'question', 'options', 'correctIndex', 'explanation'],
+                },
+              },
+              passingScorePercent: { type: Type.INTEGER },
+              nextTopic: { type: Type.STRING },
+              reviewExplanation: { type: Type.STRING },
               strictFeedback: { type: Type.STRING },
               happyFeedback: { type: Type.STRING },
             },
-            required: ['topic', 'category', 'subject', 'simpleExplanation', 'mermaidDiagram', 'speechScript', 'quiz', 'keyPoints', 'strictFeedback', 'happyFeedback'],
+            required: [
+              'topic', 'category', 'subject', 'gradeLevel', 'grade',
+              'simpleExplanation', 'formulas', 'exampleProblem',
+              'closingQuestion', 'mermaidDiagram', 'speechScript',
+              'quizList', 'passingScorePercent', 'nextTopic', 'reviewExplanation',
+              'strictFeedback', 'happyFeedback'
+            ],
           },
         },
       });
@@ -696,18 +524,60 @@ Ushbu fan va mavzu doirasida quyidagi qat'iy talablar asosida dars tayyorlang:
       const responseText = response.text;
       if (responseText) {
         const parsed: LessonData = JSON.parse(responseText);
-        // Force the returned subject to match requested subject
         parsed.subject = subject;
+        parsed.gradeLevel = gradeLevel as GradeLevel;
+        parsed.grade = Number(grade);
+        parsed.closingQuestion = closingSentence;
+        
+        // Guarantee formulas is always an array
+        if (!Array.isArray(parsed.formulas) || parsed.formulas.length === 0) {
+          parsed.formulas = [
+            `1-Qoida: ${topic} bo'yicha asosiy tamoyil va formulalarni yodda tuting`,
+            '2-Qoida: Nazariy bilimlarni amaliy masalalarda to\'g\'ri qo\'llang',
+            '3-Qoida: Hisoblashda o\'lchov birliklariga qat\'iy e\'tibor bering'
+          ];
+        }
+
+        // Guarantee exampleProblem is always present
+        if (!parsed.exampleProblem || typeof parsed.exampleProblem !== 'object') {
+          parsed.exampleProblem = {
+            problem: `${topic} bo'yicha namunaviy masala: berilgan parametrlar bo'yicha hisoblang.`,
+            stepByStepSolution: 'Bosqichma-bosqich yechim: 1) Formulani aniqlaymiz; 2) Berilganlarni qo\'yamiz; 3) Aniq natijani hisoblaymiz.'
+          };
+        }
+
+        // Ensure quiz list has required count and options array
+        if (!Array.isArray(parsed.quizList) || parsed.quizList.length < targetQuestionsCount) {
+          parsed.quizList = generateQuestionsForGrade(
+            subject,
+            topic,
+            gradeLevel as GradeLevel,
+            parsed.quizList?.[0] || {
+              question: `${topic} bo'yicha asosiy qoida qaysi?`,
+              options: ['Asosiy qoida to\'g\'ri', 'Noto\'g\'ri qoida', 'Taxminiy qoida'],
+              correctIndex: 0,
+              explanation: 'Darsda o\'rganilgan formula va qoidaga tayaniladi.'
+            }
+          );
+        } else {
+          parsed.quizList = parsed.quizList.map((q, idx) => ({
+            id: q.id || idx + 1,
+            question: q.question || `${topic} bo'yicha ${idx + 1}-savol:`,
+            options: Array.isArray(q.options) && q.options.length >= 2 ? q.options : ['To\'g\'ri javob', 'Noto\'g\'ri javob', 'Taxminiy javob'],
+            correctIndex: typeof q.correctIndex === 'number' ? q.correctIndex : 0,
+            explanation: q.explanation || 'Dars qoidalariga asosan yechiladi.'
+          }));
+        }
         return res.json(parsed);
       }
     } catch (err) {
-      console.error('Gemini subject-generation error, switching to strict subject fallback:', err);
+      console.error('Gemini adaptive generation notice:', err);
     }
   }
 
-  // Strict Subject-Specific Fallback
-  const fallbackData = getSubjectDynamicFallback(topic, subject);
-  return res.json(fallbackData);
+  // Resilient Adaptive Fallback
+  const fallback = getAdaptiveFallbackLesson(subject, topic, gradeLevel as GradeLevel, Number(grade));
+  return res.json(fallback);
 });
 
 // Natural Uzbek Google TTS audio stream proxy with automatic Cyrillic transliteration
@@ -717,7 +587,6 @@ app.get('/api/tts', (req: Request, res: Response) => {
     return res.status(400).send('Text is required');
   }
 
-  // Transliterate from Latin to Cyrillic for Google TTS engine so pronunciation is authentic and natural
   const cyrillicText = latinToCyrillicUzbek(text);
   const cleanText = encodeURIComponent(cyrillicText.slice(0, 250));
   const googleTtsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=uz&client=tw-ob&q=${cleanText}`;
@@ -732,7 +601,7 @@ app.get('/api/tts', (req: Request, res: Response) => {
   });
 });
 
-// Single-file export endpoint (returns pure standalone HTML if requested)
+// Single-file export endpoint
 app.get('/api/export-single-file', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'public', 'voice_engine.html'));
 });
@@ -754,7 +623,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 OmniCore Voice Engine v2.0 running at http://0.0.0.0:${PORT}`);
+    console.log(`🚀 OmniCore Adaptive School AI Teacher running at http://0.0.0.0:${PORT}`);
   });
 }
 
