@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OmniCore AI — Lecture & Voice Engine v2.0 (Natural Uzbek TTS & Cyber Avatar)</title>
+  <meta name="description" content="OmniCore AI Ecosystem: Natural Uzbek TTS, Voice Selector, Subject Categories va GoPrep.gg Uslubidagi Cyber Avatar" />
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Mermaid.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyberDark: '#070a12',
+            cyberCard: '#0d1321',
+            neonCyan: '#06b6d4',
+            neonPurple: '#a855f7',
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #070a12;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    }
+    .cyber-grid {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    }
+    .cyber-card {
+      background: rgba(13, 19, 33, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    .cyber-card-purple {
+      background: rgba(15, 17, 35, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    }
+    .radial-top-glow {
+      background: radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12), transparent 70%);
+    }
+    /* Mermaid diagram styling */
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+    .mermaid .node rect,
+    .mermaid .node circle,
+    .mermaid .node polygon {
+      fill: #0c1527 !important;
+      stroke: #06b6d4 !important;
+      stroke-width: 1.5px !important;
+      rx: 8px !important;
+      ry: 8px !important;
+    }
+    .mermaid .node .label {
+      color: #e2e8f0 !important;
+      font-weight: 500 !important;
+    }
+    .mermaid .edgePath .path {
+      stroke: #818cf8 !important;
+      stroke-width: 2px !important;
+    }
+    .mermaid .edgeLabel {
+      background-color: #070a12 !important;
+      color: #94a3b8 !important;
+      font-size: 11px !important;
+    }
+  </style>
+</head>
+<body class="bg-[#070a12] text-slate-100 min-h-screen cyber-grid radial-top-glow antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
+
+  <!-- TOP BAR NAVIGATION -->
+  <header class="border-b border-cyan-500/15 bg-[#070a12]/85 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-8">
+      
+      <!-- Zone 1: Brand title -->
+      <a href="#" class="text-base sm:text-lg font-bold tracking-tight text-white flex items-center gap-2.5 whitespace-nowrap shrink-0">
+        <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_10px_#06b6d4]"></span>
+        <span>OmniCore AI — Lecture & Voice Engine v2.0</span>
+      </a>
+
+      <!-- Zone 2: Navigation Links -->
+      <nav class="hidden md:flex items-center gap-6 text-xs sm:text-sm font-medium text-slate-300">
+        <a href="#fanlar-tanlovi" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Fanlar Ro'yxati</a>
+        <a href="#avatar-studiya" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Cyber Avatar</a>
+        <a href="#ovoz-boshqaruvi" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Natural Uzbek TTS</a>
+        <a href="#kognitiv-test" class="hover:text-cyan-400 transition-colors whitespace-nowrap shrink-0">Kognitiv Test</a>
+      </nav>
+
+      <!-- Zone 3: Score -->
+      <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-950/60 border border-cyan-500/30 text-xs font-mono text-cyan-300">
+          <span>Diqqat Bali:</span>
+          <span id="userScore" class="font-bold text-white text-sm">0</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+    <!-- 1. MULTI-SUBJECT LIST (FANLAR RO'YXATI) -->
+    <section id="fanlar-tanlovi" class="cyber-card rounded-2xl p-5 relative">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-cyan-500/20">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">🎓</span>
+          <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+            FANLAR RO'YXATI (MULTI-SUBJECT SYSTEM)
+          </h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">
+          Tanlangan: <span id="activeSubjectLabel" class="text-cyan-300 font-bold">Fizika</span>
+        </span>
+      </div>
+
+      <!-- Subject Pills -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5" id="subjectPillsContainer">
+        <!-- Injected via JavaScript -->
+      </div>
+    </section>
+
+    <!-- 2. AVATAR & CONTROLS GRID -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- LEFT 5 COLS: INTERACTIVE AI CYBER AVATAR (GoPrep.gg Style) -->
+      <section id="avatar-studiya" class="lg:col-span-5 cyber-card-purple rounded-2xl p-6 relative">
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-500/20">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">🤖</span>
+            <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+              AI CYBER AVATAR MIMICS
+            </h2>
+          </div>
+          <span id="avatarMoodBadge" class="text-xs font-mono px-2.5 py-1 rounded-md border bg-slate-900 border-slate-700 text-slate-400">
+            🧘 TUSHUNTIRISHGA TAYYOR
+          </span>
+        </div>
+
+        <div class="flex flex-col items-center">
+          
+          <!-- Speech Bubble -->
+          <div id="avatarSpeechBubble" class="w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed bg-[#0a0f1d] border-slate-800 text-slate-300">
+            <div class="flex items-start gap-2">
+              <span id="avatarPersonaIcon" class="text-base shrink-0">👨</span>
+              <div>
+                <span id="avatarPersonaTitle" class="font-bold text-[11px] block opacity-75">Ustoz Jasur:</span>
+                <p id="avatarBubbleText" class="line-clamp-3">Salom! Men sizning AI Lektoringizman. O'rganishni boshlaymizmi?</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Expressive GoPrep.gg Cyber Avatar Container -->
+          <div id="avatarCircle" class="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-slate-900 via-indigo-950/40 to-[#070a12] ring-2 ring-slate-700/60">
+            <svg id="avatarSvg" viewBox="0 0 100 100" class="w-full h-full drop-shadow-md select-none">
+              <defs>
+                <linearGradient id="cyberHeadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#1a233a" />
+                  <stop offset="100%" stopColor="#0b0f1d" />
+                </linearGradient>
+              </defs>
+
+              <!-- Chassis -->
+              <rect id="avatarHead" x="24" y="20" width="52" height="64" rx="26" fill="url(#cyberHeadGrad)" stroke="#06b6d4" stroke-width="1.8" />
+              <path d="M 38,82 L 34,94 L 66,94 L 62,82 Z" fill="#0d1424" stroke="#334155" stroke-width="1.5" />
+              <line id="avatarCollar" x1="42" y1="88" x2="58" y2="88" stroke="#06b6d4" stroke-width="2" stroke-dasharray="2 2" />
+
+              <!-- Antennae -->
+              <rect x="18" y="42" width="6" height="18" rx="3" fill="#0f172a" stroke="#06b6d4" stroke-width="1.2" />
+              <rect x="76" y="42" width="6" height="18" rx="3" fill="#0f172a" stroke="#06b6d4" stroke-width="1.2" />
+
+              <!-- Eyebrows Container -->
+              <g id="avatarBrows">
+                <line x1="31" y1="39" x2="46" y2="40" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                <line x1="54" y1="40" x2="69" y2="39" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+              </g>
+
+              <!-- Eyes Container -->
+              <g id="avatarEyes">
+                <circle cx="39" cy="49" r="6" fill="#082f49" stroke="#0ea5e9" stroke-width="1.2" />
+                <circle cx="39" cy="49" r="2.5" fill="#38bdf8" />
+                <circle cx="61" cy="49" r="6" fill="#082f49" stroke="#0ea5e9" stroke-width="1.2" />
+                <circle cx="61" cy="49" r="2.5" fill="#38bdf8" />
+              </g>
+
+              <!-- Mouth Container -->
+              <g id="avatarMouth">
+                <line x1="42" y1="71" x2="58" y2="71" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" />
+              </g>
+
+              <line id="avatarVisorLine" x1="30" y1="28" x2="70" y2="28" stroke="#06b6d4" stroke-width="1" stroke-dasharray="3 2" />
+            </svg>
+          </div>
+
+          <!-- Manual Emotion Tester -->
+          <div class="flex items-center gap-1.5 mt-4 pt-3 border-t border-purple-500/20 w-full justify-center text-xs">
+            <span class="text-slate-400 text-[11px] mr-1">Mimika:</span>
+            <button onclick="setAvatarEmotion('happy')" class="px-2 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-300 text-[11px] transition">
+              😊 Tabassum
+            </button>
+            <button onclick="setAvatarEmotion('strict')" class="px-2 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-rose-500 text-slate-300 text-[11px] transition">
+              😠 Jiddiylik
+            </button>
+            <button onclick="setAvatarEmotion('speaking')" class="px-2 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-cyan-500 text-slate-300 text-[11px] transition">
+              🗣️ So'zlash
+            </button>
+            <button onclick="setAvatarEmotion('idle')" class="px-2 py-1 rounded-md bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-[11px] transition">
+              🧘 Tinch
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- RIGHT 7 COLS: TOPIC INPUT & NATURAL UZBEK TTS VOICE SELECTOR -->
+      <section id="ovoz-boshqaruvi" class="lg:col-span-7 space-y-6">
+        
+        <!-- Topic Generator Input -->
+        <div class="cyber-card rounded-2xl p-6 relative">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-cyan-500/20">
+            <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+              ⚡ DARS GENERATORI VA MAVZU
+            </h2>
+            <span id="activeTopicBadgeMini" class="text-xs font-mono text-cyan-400">Fizika</span>
+          </div>
+
+          <div class="space-y-3">
+            <label for="topicInput" class="block text-xs font-semibold text-slate-300">
+              MAVZU NOMINI KIRITING:
+            </label>
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <input 
+                id="topicInput" 
+                type="text" 
+                value="Fizika - Gravitatsiya qonuni" 
+                placeholder="Masalan: Fizika - Gravitatsiya qonuni"
+                class="flex-1 bg-[#0a0f1d] border border-cyan-500/30 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+              />
+              <button 
+                id="generateBtn" 
+                onclick="handleGenerateLesson()" 
+                class="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 whitespace-nowrap shadow-[0_0_15px_rgba(6,182,212,0.3)] active:scale-[0.98]"
+              >
+                <span>⚡ AI Leksiyani Yaratish va O'qish</span>
+              </button>
+            </div>
+
+            <!-- Subject specific recommended topics -->
+            <div id="recommendedTopics" class="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-400">
+              <!-- Injected via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- NATURAL UZBEK TTS & VOICE SELECTOR CARD -->
+        <div class="cyber-card-purple rounded-2xl p-6 relative">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-500/20">
+            <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+              🎙️ NATURAL UZBEK TTS & OVOZ SOZLAMALARI
+            </h2>
+            <span class="text-xs font-mono text-purple-400">uz-UZ Audio Core</span>
+          </div>
+
+          <div class="space-y-4">
+            
+            <!-- Voice Selector: Jasur vs Malika -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-2">
+                REPETITOR OVOZINI TANLANG:
+              </label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button 
+                  id="voiceBtnJasur" 
+                  onclick="setVoicePersona('jasur')" 
+                  class="p-3 rounded-xl border text-left transition flex items-center gap-3 bg-blue-950/80 border-cyan-400 text-white ring-1 ring-cyan-400/40"
+                >
+                  <div class="w-9 h-9 rounded-lg bg-blue-900/60 border border-cyan-500/40 flex items-center justify-center text-lg">
+                    👨
+                  </div>
+                  <div>
+                    <div class="font-bold text-xs sm:text-sm text-cyan-300">Ustoz Jasur (Erkak Ovoz)</div>
+                    <div class="text-[11px] text-slate-400">Vazmin va nufuzli talaffuz</div>
+                  </div>
+                </button>
+
+                <button 
+                  id="voiceBtnMalika" 
+                  onclick="setVoicePersona('malika')" 
+                  class="p-3 rounded-xl border text-left transition flex items-center gap-3 bg-[#0a0f1d] border-slate-800 text-slate-300 hover:border-slate-700"
+                >
+                  <div class="w-9 h-9 rounded-lg bg-purple-900/60 border border-purple-500/40 flex items-center justify-center text-lg">
+                    👩
+                  </div>
+                  <div>
+                    <div class="font-bold text-xs sm:text-sm text-purple-300">Ustoz Malika (Ayol Ovoz)</div>
+                    <div class="text-[11px] text-slate-400">Do'stona va iliq ohang</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Engine Switch: Google TTS vs Web Speech -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-xl bg-[#0a0f1d] border border-slate-800 text-xs">
+              <div>
+                <span class="font-semibold text-slate-200 block">Ovozli Sintez Motori:</span>
+                <span id="engineDescription" class="text-[11px] text-slate-400">Google Natural Uzbek TTS (Haqiqiy inson talaffuzi)</span>
+              </div>
+              <div class="flex items-center gap-1.5 p-1 bg-slate-900 rounded-lg border border-slate-800">
+                <button id="btnEngineGoogle" onclick="setAudioEngine('google_natural')" class="px-2.5 py-1 text-[11px] font-semibold rounded-md bg-cyan-500 text-slate-950 transition">
+                  Google TTS (Tabiiy)
+                </button>
+                <button id="btnEngineWeb" onclick="setAudioEngine('web_speech')" class="px-2.5 py-1 text-[11px] font-semibold rounded-md text-slate-400 hover:text-white transition">
+                  Web Speech
+                </button>
+              </div>
+            </div>
+
+            <!-- Sliders: Speed, Pitch, Vol -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div>
+                <div class="flex justify-between text-slate-400 mb-1">
+                  <span>Tezlik (Speed):</span>
+                  <span id="rateVal" class="font-mono text-cyan-300">1.0x</span>
+                </div>
+                <input type="range" id="rateSlider" min="0.6" max="1.8" step="0.1" value="1.0" oninput="document.getElementById('rateVal').innerText = this.value + 'x'" class="w-full accent-cyan-400 cursor-pointer" />
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-400 mb-1">
+                  <span>Ohang (Pitch):</span>
+                  <span id="pitchVal" class="font-mono text-purple-300">1.0</span>
+                </div>
+                <input type="range" id="pitchSlider" min="0.6" max="1.5" step="0.1" value="1.0" oninput="document.getElementById('pitchVal').innerText = this.value" class="w-full accent-purple-400 cursor-pointer" />
+              </div>
+              <div>
+                <div class="flex justify-between text-slate-400 mb-1">
+                  <span>Balandlik (Vol):</span>
+                  <span id="volVal" class="font-mono text-emerald-300">100%</span>
+                </div>
+                <input type="range" id="volSlider" min="0.2" max="1.0" step="0.1" value="1.0" oninput="document.getElementById('volVal').innerText = Math.round(this.value * 100) + '%'" class="w-full accent-emerald-400 cursor-pointer" />
+              </div>
+            </div>
+
+            <!-- Play / Stop Buttons -->
+            <div class="flex items-center gap-3 pt-1">
+              <button 
+                id="mainAudioBtn" 
+                onclick="speakLesson()" 
+                class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(168,85,247,0.3)]"
+              >
+                <span id="mainAudioIcon">▶</span>
+                <span id="mainAudioText">Jasur Ovozida O'qish</span>
+              </button>
+              <button onclick="stopAudio()" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-medium border border-slate-700 transition">
+                ⏹
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- 3. LESSON ENGINE: 3 MAIN BLOCKS + QUIZ -->
+    <div id="lessonContent" class="space-y-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- LEFT 7 COLS: BLOCK 1 & BLOCK 2 -->
+        <div class="lg:col-span-7 space-y-8">
+          
+          <!-- BLOK 1: 📖 SODDA TUSHUNTIRISH -->
+          <div class="cyber-card rounded-2xl p-6 relative">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📖</span>
+                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+                  SODDA TUSHUNTIRISH (2 Jumlada)
+                </h2>
+              </div>
+              <span class="text-xs font-mono text-cyan-400">BLOK 01</span>
+            </div>
+
+            <div id="explanationBox" class="p-4 rounded-xl bg-[#090e1c] border border-cyan-500/20 text-slate-100 text-base sm:text-lg leading-relaxed">
+              Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-800">
+              <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Asosiy Qoidalar:</h3>
+              <ul id="keyPointsList" class="space-y-1.5 text-xs sm:text-sm text-slate-300 font-mono">
+                <!-- Injected via JS -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- BLOK 2: 📊 MERMAID.JS DIAGRAMMA -->
+          <div class="cyber-card rounded-2xl p-6 relative">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">📊</span>
+                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+                  MERMAID.JS DIAGRAMMA (Flowchart)
+                </h2>
+              </div>
+              <span class="text-xs font-mono text-cyan-400">BLOK 02</span>
+            </div>
+
+            <div class="rounded-xl bg-[#090e1c] border border-cyan-500/20 p-5 overflow-x-auto min-h-[220px] flex items-center justify-center">
+              <div id="mermaidContainer" class="mermaid w-full text-center"></div>
+            </div>
+
+            <div class="mt-3 flex justify-between items-center text-xs text-slate-400">
+              <span>Format: SVG Sxema</span>
+              <button onclick="toggleDiagramCode()" class="text-cyan-400 hover:text-cyan-300 underline font-mono">
+                Mermaid kodini ko'rish
+              </button>
+            </div>
+            <pre id="diagramCodeBlock" class="hidden mt-2 p-3 bg-black/60 border border-slate-800 rounded-lg text-xs font-mono text-slate-300 overflow-x-auto"></pre>
+          </div>
+
+        </div>
+
+        <!-- RIGHT 5 COLS: COGNITIVE MINI-TEST (WITH AVATAR EMOTION INTEGRATION) -->
+        <div class="lg:col-span-5 space-y-8">
+          
+          <div id="kognitiv-test" class="cyber-card rounded-2xl p-6 relative">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🎯</span>
+                <h2 class="text-sm sm:text-base font-bold text-white tracking-wide">
+                  COGNITIVE MIND: MINI-TEST
+                </h2>
+              </div>
+              <span class="text-xs font-mono text-cyan-400">DIQQAT SINOVI</span>
+            </div>
+
+            <div class="space-y-4">
+              <p id="quizQuestion" class="text-sm sm:text-base font-semibold text-white leading-relaxed">
+                <!-- Question -->
+              </p>
+
+              <div id="quizOptionsContainer" class="space-y-2">
+                <!-- 3 Options -->
+              </div>
+
+              <div id="quizResultBanner" class="hidden p-4 rounded-xl border text-xs sm:text-sm font-medium transition-all"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-cyan-500/10 mt-16 py-6 bg-[#05070e] text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#06b6d4]"></span>
+        <span class="text-slate-400 font-medium">OmniCore AI Ecosystem · 2-Modul</span>
+      </div>
+      <p class="font-mono text-slate-500">Natural Uzbek TTS · Ustoz Jasur & Malika · 6 Multi-Subject · GoPrep.gg Cyber Avatar</p>
+      <div class="text-slate-400">
+        Holat: <span class="text-emerald-400">● Tizim Faol</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#070a12',
+        primaryColor: '#0c1527',
+        primaryBorderColor: '#06b6d4',
+        primaryTextColor: '#f1f5f9',
+        lineColor: '#818cf8',
+        secondaryColor: '#172554',
+        tertiaryColor: '#1e1b4b'
+      }
+    });
+
+    const SUBJECTS = {
+      'Informatika/AI': {
+        icon: '💻',
+        defaultTopic: 'Informatika - Sun\'iy Neyron Tarmoqlari',
+        topics: ['Neyron Tarmoqlari', 'Blokcheyn Texnologiyasi', 'Algoritmlar Murakkabligi', 'Kiberxavfsizlik']
+      },
+      'Matematika': {
+        icon: '📐',
+        defaultTopic: 'Matematika - Pifagor Teoremasi va Geometriya',
+        topics: ['Pifagor Teoremasi', 'Ehtimollar Nazariyasi', 'Hosila va Integral', 'Matritsalar']
+      },
+      'Fizika': {
+        icon: '⚛️',
+        defaultTopic: 'Fizika - Gravitatsiya Qonuni',
+        topics: ['Gravitatsiya Qonuni', 'Kvant Superpozitsiyasi', 'Termodinamika', 'Nisbiylik Nazariyasi']
+      },
+      'Kimyo': {
+        icon: '🧪',
+        defaultTopic: 'Kimyo - Mendeleyev Davriy Qonuni va Atom',
+        topics: ['Mendeleyev Qonuni', 'Kovalent Bog\'lanish', 'Kislota va Asoslar', 'Elektroliz']
+      },
+      'Tarix': {
+        icon: '🏛️',
+        defaultTopic: 'Tarix - Amir Temur va Markazlashgan Davlat',
+        topics: ['Amir Temur Saltanati', 'Buyuk Ipak Yo\'li', 'Temuriylar Renessansi', 'Qadimgi Bobil']
+      },
+      'Ingliz Tili': {
+        icon: '🇬🇧',
+        defaultTopic: 'Ingliz Tili - Present Perfect Tense va Natijaviylik',
+        topics: ['Present Perfect Tense', 'Conditional Sentences', 'Passive Voice', 'Phrasal Verbs']
+      }
+    };
+
+    let activeSubject = 'Fizika';
+    let activeVoicePersona = 'jasur';
+    let activeAudioEngine = 'google_natural';
+    let avatarMood = 'idle';
+    let userScore = 0;
+    let quizAnswered = false;
+    let isSpeaking = false;
+    let currentAudioObj = null;
+    let mouthInterval = null;
+
+    let currentLesson = {
+      topic: 'Fizika: Butunjahon Gravitatsiya Qonuni',
+      category: 'Fizika',
+      subject: 'Fizika',
+      simpleExplanation: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning gravitatsiya maydoni shunchalik kuchli bo'ladi va masofa ortishi bilan bu kuch tez pasayadi.",
+      mermaidDiagram: `graph TD\n  A[Massaga ega jism M1] -->|Gravitatsiya kuchi F| C[O'zaro tortishish markazi]\n  B[Massaga ega jism M2] -->|Gravitatsiya kuchi F| C\n  C --> D[Masofa kvadrati R² ga teskari proportsional]\n  D --> E[Sayyoralar orbital harakati]`,
+      speechScript: "Gravitatsiya — barcha massaga ega jismlarning bir-birini o'zaro tortishish fundamental kuchidir. Jismning massasi qanchalik katta bo'lsa, uning tortishish kuchi shunchalik kuchli bo'ladi.",
+      quiz: {
+        question: "Ikki jism orasidagi masofa 2 barobar oshirilsa, ularning gravitatsion tortishish kuchi qanday o'zgaradi?",
+        options: ["2 barobar kamayadi", "4 barobar kamayadi", "2 barobar ortadi"],
+        correctIndex: 1,
+        explanation: "Gravitatsiya kuchi masofa kvadratiga teskari proportsionaldir (F ~ 1/R²). Shu bois masofa 2 marta ortganda, kuch 4 barobar kamayadi!"
+      },
+      keyPoints: [
+        "Nyuton butunjahon tortishish formulasi: F = G · (m₁ · m₂) / r²",
+        "Gravitatsiya doimiysi: G ≈ 6.674 × 10⁻¹¹ N·m²/kg²",
+        "Sayyoralar Quyosh atrofida ellips orbitalar bo'ylab harakatlanadi"
+      ],
+      strictFeedback: "Diqqat! Masofa kvadratiga e'tibor bermadingiz. F = G·m1·m2/r² formulasini qayta ko'rib chiqing!",
+      happyFeedback: "Ajoyib! Siz Nyutonning teskari kvadratlar qonunini to'g'ri tushundingiz!"
+    };
+
+    // Render Subject Selector Pills
+    function renderSubjectPills() {
+      const container = document.getElementById('subjectPillsContainer');
+      container.innerHTML = '';
+      Object.keys(SUBJECTS).forEach(subj => {
+        const item = SUBJECTS[subj];
+        const isSel = subj === activeSubject;
+        const btn = document.createElement('button');
+        btn.className = `p-3 rounded-xl border text-xs sm:text-sm font-semibold transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer ${
+          isSel ? 'bg-cyan-950/80 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.3)] ring-1 ring-cyan-400/50 scale-[1.02]' : 'bg-[#0a0f1d] border-slate-800 text-slate-300 hover:border-slate-600'
+        }`;
+        btn.innerHTML = `<span class="text-xl">${item.icon}</span><span>${subj}</span>`;
+        btn.onclick = () => selectSubject(subj);
+        container.appendChild(btn);
+      });
+
+      document.getElementById('activeSubjectLabel').innerText = activeSubject;
+      document.getElementById('activeTopicBadgeMini').innerText = activeSubject;
+
+      // Recommended topics
+      const recContainer = document.getElementById('recommendedTopics');
+      recContainer.innerHTML = '<span class="font-medium text-slate-400">Tavsiya mavzular:</span>';
+      SUBJECTS[activeSubject].topics.forEach(t => {
+        const b = document.createElement('button');
+        b.className = 'px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-cyan-300 border border-slate-700 transition cursor-pointer';
+        b.innerText = t;
+        b.onclick = () => {
+          document.getElementById('topicInput').value = `${activeSubject} - ${t}`;
+          handleGenerateLesson();
+        };
+        recContainer.appendChild(b);
+      });
+    }
+
+    function selectSubject(subj) {
+      activeSubject = subj;
+      document.getElementById('topicInput').value = SUBJECTS[subj].defaultTopic;
+      renderSubjectPills();
+      handleGenerateLesson();
+    }
+
+    // Voice Persona & Engine Switches
+    function setVoicePersona(persona) {
+      activeVoicePersona = persona;
+      const btnJ = document.getElementById('voiceBtnJasur');
+      const btnM = document.getElementById('voiceBtnMalika');
+      const icon = document.getElementById('avatarPersonaIcon');
+      const title = document.getElementById('avatarPersonaTitle');
+      const mainAudioText = document.getElementById('mainAudioText');
+
+      if (persona === 'jasur') {
+        btnJ.className = 'p-3 rounded-xl border text-left transition flex items-center gap-3 bg-blue-950/80 border-cyan-400 text-white ring-1 ring-cyan-400/40';
+        btnM.className = 'p-3 rounded-xl border text-left transition flex items-center gap-3 bg-[#0a0f1d] border-slate-800 text-slate-300 hover:border-slate-700';
+        icon.innerText = '👨';
+        title.innerText = 'Ustoz Jasur:';
+        mainAudioText.innerText = "Jasur Ovozida O'qish";
+      } else {
+        btnM.className = 'p-3 rounded-xl border text-left transition flex items-center gap-3 bg-purple-950/80 border-purple-400 text-white ring-1 ring-purple-400/40';
+        btnJ.className = 'p-3 rounded-xl border text-left transition flex items-center gap-3 bg-[#0a0f1d] border-slate-800 text-slate-300 hover:border-slate-700';
+        icon.innerText = '👩';
+        title.innerText = 'Ustoz Malika:';
+        mainAudioText.innerText = "Malika Ovozida O'qish";
+      }
+    }
+
+    function setAudioEngine(engine) {
+      activeAudioEngine = engine;
+      const btnG = document.getElementById('btnEngineGoogle');
+      const btnW = document.getElementById('btnEngineWeb');
+      const desc = document.getElementById('engineDescription');
+
+      if (engine === 'google_natural') {
+        btnG.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-cyan-500 text-slate-950 transition';
+        btnW.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md text-slate-400 hover:text-white transition';
+        desc.innerText = 'Google Natural Uzbek TTS (Haqiqiy inson talaffuzi)';
+      } else {
+        btnW.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md bg-purple-600 text-white transition';
+        btnG.className = 'px-2.5 py-1 text-[11px] font-semibold rounded-md text-slate-400 hover:text-white transition';
+        desc.innerText = 'Web Speech API (Brauzer mahalliy sintezi)';
+      }
+    }
+
+    // GoPrep.gg Style Avatar Emotion Switcher
+    function setAvatarEmotion(mood, customMsg) {
+      avatarMood = mood;
+      const circle = document.getElementById('avatarCircle');
+      const badge = document.getElementById('avatarMoodBadge');
+      const head = document.getElementById('avatarHead');
+      const collar = document.getElementById('avatarCollar');
+      const visor = document.getElementById('avatarVisorLine');
+      const brows = document.getElementById('avatarBrows');
+      const eyes = document.getElementById('avatarEyes');
+      const mouth = document.getElementById('avatarMouth');
+      const bubble = document.getElementById('avatarSpeechBubble');
+      const bubbleText = document.getElementById('avatarBubbleText');
+
+      if (customMsg) bubbleText.innerText = customMsg;
+
+      if (mood === 'strict') {
+        // GoPrep.gg Angry / Strict Furrowed Brows
+        circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-rose-950/80 via-red-900/40 to-[#070a12] ring-4 ring-rose-500/50 shadow-[0_0_35px_rgba(244,63,94,0.4)]';
+        badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-rose-950/80 border-rose-500 text-rose-300 animate-pulse';
+        badge.innerText = '⚠️ JAHL / JIDDIY';
+        bubble.className = 'w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed bg-rose-950/50 border-rose-500/60 text-rose-200';
+
+        head.setAttribute('stroke', '#f43f5e');
+        collar.setAttribute('stroke', '#ef4444');
+        visor.setAttribute('stroke', '#f43f5e');
+
+        brows.innerHTML = `
+          <line x1="30" y1="36" x2="47" y2="44" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
+          <line x1="53" y1="44" x2="70" y2="36" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
+          <line x1="48" y1="39" x2="52" y2="39" stroke="#fda4af" stroke-width="1.5" />
+        `;
+        eyes.innerHTML = `
+          <path d="M 31,48 L 47,48 L 44,52 L 34,52 Z" fill="#7f1d1d" stroke="#ef4444" stroke-width="1" />
+          <circle cx="39" cy="50" r="2.2" fill="#fecaca" />
+          <path d="M 53,48 L 69,48 L 66,52 L 56,52 Z" fill="#7f1d1d" stroke="#ef4444" stroke-width="1" />
+          <circle cx="61" cy="50" r="2.2" fill="#fecaca" />
+        `;
+        mouth.innerHTML = `<path d="M 38,72 Q 50,67 62,72" stroke="#f43f5e" stroke-width="2.8" stroke-linecap="round" fill="none" />`;
+      } else if (mood === 'happy') {
+        // Happy Smiling Mimic
+        circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-emerald-950/80 via-teal-900/40 to-[#070a12] ring-4 ring-emerald-500/50 shadow-[0_0_35px_rgba(16,185,129,0.4)]';
+        badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-emerald-950/80 border-emerald-500 text-emerald-300';
+        badge.innerText = '✨ TABASSUM / MAMNUN';
+        bubble.className = 'w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed bg-emerald-950/50 border-emerald-500/60 text-emerald-200';
+
+        head.setAttribute('stroke', '#10b981');
+        collar.setAttribute('stroke', '#10b981');
+        visor.setAttribute('stroke', '#10b981');
+
+        brows.innerHTML = `
+          <path d="M 30,40 Q 38,32 46,38" stroke="#34d399" stroke-width="2.8" stroke-linecap="round" fill="none" />
+          <path d="M 54,38 Q 62,32 70,40" stroke="#34d399" stroke-width="2.8" stroke-linecap="round" fill="none" />
+        `;
+        eyes.innerHTML = `
+          <path d="M 32,50 Q 39,43 46,50" stroke="#10b981" stroke-width="2.8" stroke-linecap="round" fill="none" />
+          <path d="M 54,50 Q 61,43 68,50" stroke="#10b981" stroke-width="2.8" stroke-linecap="round" fill="none" />
+        `;
+        mouth.innerHTML = `<path d="M 36,68 Q 50,84 64,68 Z" fill="#064e3b" stroke="#10b981" stroke-width="2" />`;
+      } else if (mood === 'speaking') {
+        // Speaking Lip-Sync
+        circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-cyan-950/80 via-blue-900/40 to-[#070a12] ring-4 ring-cyan-500/50 shadow-[0_0_35px_rgba(6,182,212,0.4)]';
+        badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-cyan-950/80 border-cyan-500 text-cyan-300';
+        badge.innerText = '🗣️ O\'QIMOQDA';
+        bubble.className = 'w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed bg-cyan-950/40 border-cyan-500/50 text-cyan-100 ring-1 ring-cyan-500/30';
+
+        head.setAttribute('stroke', '#06b6d4');
+        collar.setAttribute('stroke', '#06b6d4');
+        visor.setAttribute('stroke', '#06b6d4');
+
+        brows.innerHTML = `
+          <line x1="31" y1="39" x2="46" y2="40" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="54" y1="40" x2="69" y2="39" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+        `;
+        eyes.innerHTML = `
+          <circle cx="39" cy="49" r="6" fill="#082f49" stroke="#0ea5e9" stroke-width="1.2" />
+          <circle cx="39" cy="49" r="2.5" fill="#38bdf8" />
+          <circle cx="61" cy="49" r="6" fill="#082f49" stroke="#0ea5e9" stroke-width="1.2" />
+          <circle cx="61" cy="49" r="2.5" fill="#38bdf8" />
+        `;
+
+        if (!mouthInterval) {
+          mouthInterval = setInterval(() => {
+            const h = Math.floor(Math.random() * 4);
+            if (h === 3) mouth.innerHTML = `<ellipse cx="50" cy="71" rx="8" ry="6" fill="#0c1527" stroke="#38bdf8" stroke-width="2" />`;
+            else if (h === 2) mouth.innerHTML = `<ellipse cx="50" cy="71" rx="7" ry="4" fill="#0c1527" stroke="#38bdf8" stroke-width="2" />`;
+            else if (h === 1) mouth.innerHTML = `<ellipse cx="50" cy="71" rx="6" ry="2.5" fill="#0c1527" stroke="#38bdf8" stroke-width="2" />`;
+            else mouth.innerHTML = `<line x1="42" y1="71" x2="58" y2="71" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />`;
+          }, 140);
+        }
+      } else {
+        // Idle
+        if (mouthInterval) { clearInterval(mouthInterval); mouthInterval = null; }
+        circle.className = 'relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex items-center justify-center p-3 transition-all duration-500 bg-gradient-to-b from-slate-900 via-indigo-950/40 to-[#070a12] ring-2 ring-slate-700/60';
+        badge.className = 'text-xs font-mono px-2.5 py-1 rounded-md border bg-slate-900 border-slate-700 text-slate-400';
+        badge.innerText = '🧘 TUSHUNTIRISHGA TAYYOR';
+        bubble.className = 'w-full mb-4 p-3 rounded-xl border text-xs sm:text-sm font-medium transition-all duration-300 leading-relaxed bg-[#0a0f1d] border-slate-800 text-slate-300';
+
+        head.setAttribute('stroke', '#06b6d4');
+        collar.setAttribute('stroke', '#06b6d4');
+        visor.setAttribute('stroke', '#06b6d4');
+
+        brows.innerHTML = `
+          <line x1="31" y1="39" x2="46" y2="40" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+          <line x1="54" y1="40" x2="69" y2="39" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+        `;
+        eyes.innerHTML = `
+          <circle cx="39" cy="49" r="6" fill="#082f49" stroke="#0ea5e9" stroke-width="1.2" />
+          <circle cx="39" cy="49" r="2.5" fill="#38bdf8" />
+          <circle cx="61" cy="49" r="6" fill="#082f49" stroke="#0ea5e9" stroke-width="1.2" />
+          <circle cx="61" cy="49" r="2.5" fill="#38bdf8" />
+        `;
+        mouth.innerHTML = `<line x1="42" y1="71" x2="58" y2="71" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" />`;
+      }
+    }
+
+    // Render Current Lesson
+    function renderLessonUI() {
+      document.getElementById('explanationBox').innerText = currentLesson.simpleExplanation;
+      
+      const kpList = document.getElementById('keyPointsList');
+      kpList.innerHTML = '';
+      currentLesson.keyPoints.forEach(p => {
+        const li = document.createElement('li');
+        li.className = 'flex items-start gap-2';
+        li.innerHTML = `<span class="text-cyan-400">▹</span><span>${p}</span>`;
+        kpList.appendChild(li);
+      });
+
+      renderMermaid(currentLesson.mermaidDiagram);
+      document.getElementById('diagramCodeBlock').innerText = currentLesson.mermaidDiagram;
+
+      // Quiz
+      quizAnswered = false;
+      document.getElementById('quizQuestion').innerText = currentLesson.quiz.question;
+      const optsCont = document.getElementById('quizOptionsContainer');
+      optsCont.innerHTML = '';
+
+      currentLesson.quiz.options.forEach((opt, idx) => {
+        const b = document.createElement('button');
+        b.className = 'quiz-opt-btn w-full text-left p-3.5 rounded-xl bg-[#0a0f1d] border border-slate-700/80 hover:border-cyan-400 text-xs sm:text-sm text-slate-200 transition flex items-center justify-between cursor-pointer';
+        b.innerHTML = `
+          <span class="flex items-center gap-2">
+            <span class="font-mono text-cyan-400 font-bold">${String.fromCharCode(65 + idx)})</span>
+            <span>${opt}</span>
+          </span>
+          <span class="font-mono text-slate-500 text-xs">${String.fromCharCode(65 + idx)}</span>
+        `;
+        b.onclick = () => selectQuizOption(idx);
+        optsCont.appendChild(b);
+      });
+
+      const resBanner = document.getElementById('quizResultBanner');
+      resBanner.className = 'hidden p-4 rounded-xl border text-xs sm:text-sm font-medium transition-all';
+      resBanner.innerHTML = '';
+    }
+
+    async function renderMermaid(code) {
+      const container = document.getElementById('mermaidContainer');
+      container.removeAttribute('data-processed');
+      container.innerHTML = code;
+      try {
+        await mermaid.run({ nodes: [container] });
+      } catch (err) {
+        console.warn('Mermaid rendering notice:', err);
+      }
+    }
+
+    function toggleDiagramCode() {
+      document.getElementById('diagramCodeBlock').classList.toggle('hidden');
+    }
+
+    // Audio Playback: Google TTS vs Web Speech API
+    function speakLesson(customText) {
+      stopAudio();
+
+      const text = customText || currentLesson.speechScript || currentLesson.simpleExplanation;
+      setAvatarEmotion('speaking', text);
+      isSpeaking = true;
+      document.getElementById('mainAudioIcon').innerText = '⏹';
+      document.getElementById('mainAudioText').innerText = "To'xtatish";
+
+      const speed = parseFloat(document.getElementById('rateSlider').value) || 1.0;
+      const pitch = parseFloat(document.getElementById('pitchSlider').value) || 1.0;
+      const vol = parseFloat(document.getElementById('volSlider').value) || 1.0;
+
+      if (activeAudioEngine === 'google_natural') {
+        const url = `/api/tts?text=${encodeURIComponent(text)}&voice=${activeVoicePersona}&t=${Date.now()}`;
+        const audio = new Audio(url);
+        audio.playbackRate = speed;
+        audio.volume = vol;
+
+        audio.onended = () => {
+          stopAudio();
+        };
+        audio.onerror = () => {
+          fallbackWebSpeech(text, speed, pitch, vol);
+        };
+
+        currentAudioObj = audio;
+        audio.play().catch(() => fallbackWebSpeech(text, speed, pitch, vol));
+      } else {
+        fallbackWebSpeech(text, speed, pitch, vol);
+      }
+    }
+
+    function fallbackWebSpeech(text, speed, pitch, vol) {
+      if (!('speechSynthesis' in window)) {
+        stopAudio();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const uzVoice = voices.find(v => v.lang.toLowerCase().includes('uz'));
+      if (uzVoice) u.voice = uzVoice;
+      else u.lang = 'uz-UZ';
+
+      if (activeVoicePersona === 'jasur') {
+        u.pitch = pitch * 0.85;
+        u.rate = speed * 0.95;
+      } else {
+        u.pitch = pitch * 1.25;
+        u.rate = speed * 1.05;
+      }
+      u.volume = vol;
+
+      u.onend = () => stopAudio();
+      u.onerror = () => stopAudio();
+      window.speechSynthesis.speak(u);
+    }
+
+    function stopAudio() {
+      if (currentAudioObj) {
+        currentAudioObj.pause();
+        currentAudioObj = null;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      isSpeaking = false;
+      document.getElementById('mainAudioIcon').innerText = '▶';
+      document.getElementById('mainAudioText').innerText = activeVoicePersona === 'jasur' ? "Jasur Ovozida O'qish" : "Malika Ovozida O'qish";
+      setAvatarEmotion('idle');
+    }
+
+    // Generate Lesson
+    async function handleGenerateLesson() {
+      const topic = document.getElementById('topicInput').value.trim();
+      if (!topic) return;
+
+      stopAudio();
+      setAvatarEmotion('speaking', `${activeSubject} fanidan dars tayyorlanmoqda...`);
+
+      try {
+        const response = await fetch('/api/generate-lesson', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            topic,
+            subject: activeSubject,
+            voicePersona: activeVoicePersona
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          currentLesson = data;
+        }
+      } catch (err) {
+        console.warn('Fallback triggered', err);
+      }
+
+      renderLessonUI();
+      setTimeout(() => {
+        speakLesson(currentLesson.speechScript || currentLesson.simpleExplanation);
+      }, 500);
+    }
+
+    // Quiz Selection with GoPrep.gg Mimic Reaction
+    function selectQuizOption(idx) {
+      if (quizAnswered) return;
+      quizAnswered = true;
+
+      const isCorrect = idx === currentLesson.quiz.correctIndex;
+      const banner = document.getElementById('quizResultBanner');
+      const buttons = document.querySelectorAll('.quiz-opt-btn');
+
+      buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i === currentLesson.quiz.correctIndex) {
+          b.className = 'quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-emerald-500 bg-emerald-950/50 text-emerald-200 ring-1 ring-emerald-500/40 flex items-center justify-between';
+        } else if (i === idx) {
+          b.className = 'quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-rose-500 bg-rose-950/50 text-rose-200 ring-1 ring-rose-500/40 flex items-center justify-between';
+        } else {
+          b.className = 'quiz-opt-btn w-full text-left p-3.5 rounded-xl border border-slate-800 bg-[#0a0f1d] text-slate-500 opacity-60 flex items-center justify-between';
+        }
+      });
+
+      banner.classList.remove('hidden');
+
+      if (isCorrect) {
+        userScore += 100;
+        document.getElementById('userScore').innerText = userScore;
+        banner.className = 'p-4 rounded-xl border border-emerald-500/50 bg-emerald-950/40 text-emerald-200 space-y-1.5';
+        banner.innerHTML = `
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2">
+            <span>✅ Ball +100! Diqqat darajasi a'lo</span>
+          </div>
+          <p class="text-xs text-emerald-300/90">${currentLesson.quiz.explanation}</p>
+        `;
+
+        setAvatarEmotion('happy', currentLesson.happyFeedback || "Barakalla! Diqqatingiz yuqori darajada!");
+        if (typeof confetti === 'function') {
+          confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
+        }
+        setTimeout(() => speakLesson(currentLesson.happyFeedback || "Barakalla! To'g'ri javob!"), 300);
+      } else {
+        banner.className = 'p-4 rounded-xl border border-rose-500/50 bg-rose-950/40 text-rose-200 space-y-1.5';
+        banner.innerHTML = `
+          <div class="font-bold text-sm sm:text-base flex items-center gap-2">
+            <span>❌ Javob noto'g'ri. To'g'ri variant: ${String.fromCharCode(65 + currentLesson.quiz.correctIndex)}</span>
+          </div>
+          <p class="text-xs text-rose-300/90">${currentLesson.quiz.explanation}</p>
+        `;
+
+        // Goprep.gg Angry / Strict Brow Mimic
+        setAvatarEmotion('strict', currentLesson.strictFeedback || "Diqqatni jamlang! Bu joyda jiddiy xatoga yo'l qo'ydingiz!");
+        setTimeout(() => speakLesson(currentLesson.strictFeedback || "Diqqatni jamlang! Jiddiy xato qildingiz!"), 300);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+      }
+      renderSubjectPills();
+      renderLessonUI();
+    });
+  </script>
+</body>
+</html>

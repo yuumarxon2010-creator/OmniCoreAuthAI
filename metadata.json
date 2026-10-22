@@ -1,0 +1,6 @@
+{
+  "name": "OmniCore AI — Lecture & Voice Engine v2.0",
+  "description": "OmniCore AI Ecosystem 2-Modul: Interaktiv AI Ovozli Repetitor va Lektor, sodda tushuntirish, Mermaid.js diagrammalar va kognitiv mini-test generatori.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
