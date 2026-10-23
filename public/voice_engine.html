@@ -337,10 +337,43 @@
     let isSpeaking = false;
 
     /**
-     * Aisha TTS Ovoz Generator
+     * Lotincha matnni Kirill-Fonetik ko'rinishga moslab berish (Aisha TTS xatosiz talaffuz qilishi uchun)
+     */
+    function convertToKirillForTTS(text) {
+      if (!text) return "";
+      let t = text.replace(/[*_#`~]/g, '');
+
+      // Raqamlar
+      t = t.replace(/\b1\b/g, 'бир').replace(/\b2\b/g, 'икки').replace(/\b3\b/g, 'уч')
+           .replace(/\b4\b/g, 'тўрт').replace(/\b5\b/g, 'беш').replace(/\b6\b/g, 'олти')
+           .replace(/\b7\b/g, 'етти').replace(/\b8\b/g, 'саккиз').replace(/\b9\b/g, 'тўққиз').replace(/\b10\b/g, 'ўн');
+
+      // Harf birikmalari va maxsus o'zbek harflari
+      t = t.replace(/g['’ʻ‘]/gi, 'ғ').replace(/o['’ʻ‘]/gi, 'ў')
+           .replace(/sh/gi, 'ш').replace(/ch/gi, 'ч').replace(/ng/gi, 'нг')
+           .replace(/yo/gi, 'ё').replace(/yu/gi, 'ю').replace(/ya/gi, 'я').replace(/ye/gi, 'е');
+
+      // Harflar almashinuvi
+      const map = {
+        'a':'а','b':'б','v':'в','g':'г','d':'д','e':'е','z':'з','i':'и',
+        'j':'ж','k':'к','l':'л','m':'м','n':'н','o':'о','p':'п','r':'р',
+        's':'с','t':'т','u':'у','f':'ф','x':'х','h':'ҳ','q':'қ','y':'й'
+      };
+
+      return t.split('').map(char => {
+        let lower = char.toLowerCase();
+        return map[lower] ? map[lower] : char;
+      }).join('');
+    }
+
+    /**
+     * Aisha TTS Ovoz Generator (Muvaffaqiyatli Talaffuz)
      */
     async function speak(text) {
       if (!text) return;
+
+      // Lotin matn orqa fonda Kirillcha talaffuzga o'tkaziladi
+      const phoneticText = convertToKirillForTTS(text);
 
       try {
         if (currentAudio) {
@@ -355,7 +388,7 @@
         const response = await fetch(WORKER_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ transcript: text, language: 'uz' }),
+          body: JSON.stringify({ transcript: phoneticText, language: 'uz' }),
         });
 
         if (!response.ok) {
