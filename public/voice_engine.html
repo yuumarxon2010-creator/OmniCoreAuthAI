@@ -252,7 +252,7 @@
         <div class="cyber-card rounded-2xl p-5 space-y-2">
           <div class="flex items-center justify-between pb-2 border-b border-cyan-500/20 text-xs font-bold text-white uppercase">
             <span>📖 Nazariy Tushuntirish</span>
-            <span class="text-[10px] text-cyan-400 font-mono">Lotin Alifbosida</span>
+            <span class="text-[10px] text-cyan-400 font-mono">Lotin Alifbosida (Gemini AI Engine)</span>
           </div>
           <p id="lessonExplanation" class="text-sm text-slate-100 leading-relaxed"></p>
         </div>
@@ -326,11 +326,11 @@
     OmniCore AI Ecosystem · Maktab AI Repetitori · Aisha TTS Integratsiyasi bilan
   </footer>
 
-  <!-- SCRIPT LOGIC (AISHA TTS DIRECT INTEGRATION) -->
+  <!-- SCRIPT LOGIC -->
   <script>
     mermaid.initialize({ startOnLoad: false, theme: 'dark' });
 
-    // Cloudflare Worker Proxy URL
+    // Cloudflare Worker URL
     const WORKER_URL = 'https://wild-rice-449a.y-u-umarxon2010.workers.dev/';
 
     let currentAudio = null;
@@ -338,13 +338,11 @@
 
     /**
      * Aisha TTS Ovoz Generator
-     * Faqat Cloudflare Worker orqali Aisha TTS ishlatiladi.
      */
     async function speak(text) {
       if (!text) return;
 
       try {
-        // Avvalgi yangrayotgan audioni to'xtatish
         if (currentAudio) {
           currentAudio.pause();
           currentAudio = null;
@@ -369,7 +367,6 @@
         
         currentAudio = new Audio(audioUrl);
         
-        // Tezlik va ovoz balandligini sozlash
         const speedVal = parseFloat(document.getElementById('rateSlider').value) || 1.0;
         const volVal = parseFloat(document.getElementById('volSlider').value) || 1.0;
         currentAudio.playbackRate = speedVal;
@@ -560,14 +557,47 @@
       generateLesson();
     }
 
-    function generateLesson() {
+    /**
+     * WORKER PROXY ORQALI DARS YARATISH
+     */
+    async function generateLesson() {
       const input = document.getElementById('topicInput').value.trim() || activeLesson.topic;
-      activeLesson = getLessonData(currentSubject);
-      activeLesson.topic = input;
-      activeLesson.explanation = `${input} — bu ${currentSubject} fanining ${currentGrade}-sinfidagi asosiy mavzularidan biri. Barcha qoidalarni o'rganing.`;
-      renderLesson();
-      resetQuiz();
-      speak(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
+      const btnGen = document.getElementById('btnGenerate');
+      if (btnGen) btnGen.innerText = "⏳ AI o'ylamoqda...";
+
+      const prompt = `Explain the topic "${input}" for Subject: ${currentSubject}, Grade: ${currentGrade}. Respond ONLY in clear Uzbek (Latin alphabet). Keep it structured and clear for TTS. ALWAYS end with: "${MANDATORY_QUESTION}"`;
+
+      try {
+        const response = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: prompt, action: "generate" })
+        });
+
+        const data = await response.json();
+
+        if (data && data.text) {
+          const aiText = data.text;
+          activeLesson = getLessonData(currentSubject);
+          activeLesson.topic = input;
+          activeLesson.explanation = aiText;
+          renderLesson();
+          resetQuiz();
+          speak(aiText);
+        } else {
+          throw new Error("Worker Proxy javob qaytarmadi");
+        }
+      } catch (err) {
+        console.warn("Zaxira javob ko'rsatiladi:", err);
+        activeLesson = getLessonData(currentSubject);
+        activeLesson.topic = input;
+        activeLesson.explanation = `${input} — bu ${currentSubject} fanining ${currentGrade}-sinfidagi asosiy mavzularidan biri. Barcha qoidalarni o'rganing.`;
+        renderLesson();
+        resetQuiz();
+        speak(`${activeLesson.explanation} ${MANDATORY_QUESTION}`);
+      } finally {
+        if (btnGen) btnGen.innerText = "⚡ Darsni Tushuntirish";
+      }
     }
 
     function reviewExplanation() {
@@ -742,4 +772,3 @@
   </script>
 </body>
 </html>
-
